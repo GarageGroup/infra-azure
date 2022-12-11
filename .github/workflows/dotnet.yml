@@ -1,0 +1,64 @@
+name: .NET
+
+on:
+  push:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+
+     # Add NuGet Sources
+
+    - name: Create Local NuGet Directory
+      run: mkdir ~/nuget
+
+    - name: Add Local Nuget Source
+      run: dotnet nuget add source ~/nuget
+
+    - name: Add GGroupp NuGet Source
+      run: >
+        dotnet nuget add source ${{ secrets.GG_NUGET_SOURCE_URL }}
+        -n ggroupp
+        -u ${{ secrets.GG_NUGET_SOURCE_USER_NAME }}
+        -p ${{ secrets.GG_NUGET_SOURCE_USER_PASSWORD }}
+        --store-password-in-clear-text
+
+    # AzureFunc.Generator
+
+    - name: Restore AzureFunc.Generator
+      run: dotnet restore ./src/*/AzureFunc.Generator.csproj
+
+    - name: Build AzureFunc.Generator
+      run: dotnet build ./src/*/AzureFunc.Generator.csproj --no-restore  -c Release
+
+    - name: Pack AzureFunc.Generator
+      run: dotnet pack ./src/*/AzureFunc.Generator.csproj --no-restore -o ~/nuget  -c Release
+
+    # AzureFunc
+
+    - name: Restore AzureFunc
+      run: dotnet restore ./src/*/AzureFunc.csproj
+
+    - name: Build AzureFunc
+      run: dotnet build ./src/*/AzureFunc.csproj --no-restore  -c Release
+
+    - name: Pack AzureFunc
+      run: dotnet pack ./src/*/AzureFunc.csproj --no-restore -o ~/nuget  -c Release
+
+    # Push
+
+    - name: Push Packages
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run: >
+        dotnet nuget push "../../../nuget/*.nupkg"
+        -s ${{ secrets.GG_NUGET_SOURCE_URL }}
+        -k ${{ secrets.GG_NUGET_SOURCE_USER_PASSWORD }}
+        --skip-duplicate
