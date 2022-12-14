@@ -11,9 +11,9 @@ namespace GGroupp.Infra.Endpoint;
 
 public static class EndpointSwaggerExtensions
 {
-    public static SwaggerOption? GetSwaggerOption(this FunctionContext? context, string prefix = "Swagger")
+    public static SwaggerOption? GetSwaggerOption(this FunctionContext? context, string sectionName = "Swagger")
         =>
-        context?.InstanceServices.GetService<IConfiguration>()?.GetSwaggerOptionWithPrefix(prefix);
+        context?.InstanceServices.GetService<IConfiguration>()?.GetSwaggerOption(sectionName);
 
     public static FunctionSwaggerBuilder CreateBuilder(this SwaggerOption? swaggerOption, string? apiVersion)
         =>
