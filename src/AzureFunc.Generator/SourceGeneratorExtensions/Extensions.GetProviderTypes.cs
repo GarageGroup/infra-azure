@@ -120,7 +120,7 @@ internal static partial class SourceGeneratorExtensions
 
     private static int? GetAuthorizationLevel(this ISymbol symbol)
     {
-        var authorizationAttribute = symbol.GetAttributes().FirstOrDefault(IsAuthorizationAttribute);
+        var authorizationAttribute = symbol.GetAttributes().FirstOrDefault(IsSecurityAttribute);
         if (authorizationAttribute is null)
         {
             return null;
@@ -139,9 +139,9 @@ internal static partial class SourceGeneratorExtensions
 
         return level;
 
-        static bool IsAuthorizationAttribute(AttributeData attributeData)
+        static bool IsSecurityAttribute(AttributeData attributeData)
             =>
-            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionAuthorizationAttribute") is true;
+            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionSecurityAttribute") is true;
     }
 
     private static IReadOnlyCollection<string>? GetHttpMethodNames(this AttributeData endpointAttribute)

@@ -33,8 +33,10 @@ public static class EndpointFuncDependencyExtensions
     {
         ArgumentNullException.ThrowIfNull(endpoint);
 
+        using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(request.FunctionContext.CancellationToken, cancellationToken);
+
         var endpointRequest = CreateEndpointRequest(request);
-        var endpointResponse = await endpoint.InvokeAsync(endpointRequest, cancellationToken).ConfigureAwait(false);
+        var endpointResponse = await endpoint.InvokeAsync(endpointRequest, tokenSource.Token).ConfigureAwait(false);
 
         var statusCode = (HttpStatusCode)endpointResponse.StatusCode;
         var response = request.CreateResponse(statusCode);
