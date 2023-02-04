@@ -7,9 +7,10 @@
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <RootNamespace>GGroupp.Infra</RootNamespace>
-    <AssemblyName>GGroupp.Infra.Endpoint.AzureFunc.Generator</AssemblyName>
-    <Version>0.0.2</Version>
+    <AssemblyName>GGroupp.Infra.Azure.Handler.Generator</AssemblyName>
+    <Version>0.0.1-build.6</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="GGroupp.CodeAnalysis.Extensions" Version="0.0.1" />
     <PackageReference Include="GGroupp.CodeAnalysis.SourceBuilder" Version="0.0.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

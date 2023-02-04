@@ -31,27 +31,60 @@ jobs:
         -p ${{ secrets.GG_NUGET_SOURCE_USER_PASSWORD }}
         --store-password-in-clear-text
 
-    # AzureFunc.Generator
+    # Azure.Hosting
 
-    - name: Restore AzureFunc.Generator
-      run: dotnet restore ./src/*/AzureFunc.Generator.csproj
+    - name: Restore Azure.Hosting
+      run: dotnet restore ./src/*/Azure.Hosting.csproj
 
-    - name: Build AzureFunc.Generator
-      run: dotnet build ./src/*/AzureFunc.Generator.csproj --no-restore  -c Release
+    - name: Build Azure.Hosting
+      run: dotnet build ./src/*/Azure.Hosting.csproj --no-restore  -c Release
 
-    - name: Pack AzureFunc.Generator
-      run: dotnet pack ./src/*/AzureFunc.Generator.csproj --no-restore -o ~/nuget  -c Release
+    - name: Pack Azure.Hosting
+      run: dotnet pack ./src/*/Azure.Hosting.csproj --no-restore -o ~/nuget  -c Release
 
-    # AzureFunc
+    # Azure.Endpoint
 
-    - name: Restore AzureFunc
-      run: dotnet restore ./src/*/AzureFunc.csproj
+    - name: Restore Azure.Endpoint
+      run: dotnet restore ./src/*/Azure.Endpoint.csproj
 
-    - name: Build AzureFunc
-      run: dotnet build ./src/*/AzureFunc.csproj --no-restore  -c Release
+    - name: Build Azure.Endpoint
+      run: dotnet build ./src/*/Azure.Endpoint.csproj --no-restore  -c Release
 
-    - name: Pack AzureFunc
-      run: dotnet pack ./src/*/AzureFunc.csproj --no-restore -o ~/nuget  -c Release
+    - name: Pack Azure.Endpoint
+      run: dotnet pack ./src/*/Azure.Endpoint.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.Endpoint.Generator
+
+    - name: Restore Azure.Endpoint.Generator
+      run: dotnet restore ./src/*/Azure.Endpoint.Generator.csproj
+
+    - name: Build Azure.Endpoint.Generator
+      run: dotnet build ./src/*/Azure.Endpoint.Generator.csproj --no-restore  -c Release
+
+    - name: Pack Azure.Endpoint.Generator
+      run: dotnet pack ./src/*/Azure.Endpoint.Generator.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.Handler
+
+    - name: Restore Azure.Handler
+      run: dotnet restore ./src/*/Azure.Handler.csproj
+
+    - name: Build Azure.Handler
+      run: dotnet build ./src/*/Azure.Handler.csproj --no-restore  -c Release
+
+    - name: Pack Azure.Handler
+      run: dotnet pack ./src/*/Azure.Handler.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.Handler.Generator
+
+    - name: Restore Azure.Handler.Generator
+      run: dotnet restore ./src/*/Azure.Handler.Generator.csproj
+
+    - name: Build Azure.Handler.Generator
+      run: dotnet build ./src/*/Azure.Handler.Generator.csproj --no-restore  -c Release
+
+    - name: Pack Azure.Handler.Generator
+      run: dotnet pack ./src/*/Azure.Handler.Generator.csproj --no-restore -o ~/nuget  -c Release
 
     # Push
 
