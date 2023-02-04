@@ -10,7 +10,7 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <RootNamespace>GGroupp.Infra</RootNamespace>
     <AssemblyName>GGroupp.Infra.Azure.Handler.Generator</AssemblyName>
-    <Version>0.0.1-build.6</Version>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
