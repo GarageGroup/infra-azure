@@ -32,7 +32,7 @@ internal static partial class SourceGeneratorExtensions
 
         return new(
             @namespace: typeSymbol.ContainingNamespace.ToString(),
-            typeName: typeSymbol.Name + "Function",
+            typeName: typeSymbol.Name + "EndpointFunction",
             providerType: typeSymbol.GetDisplayedData(),
             resolverTypes: typeSymbol.GetMembers().OfType<IMethodSymbol>().Select(InnerGetResolverMetadata).NotNull().ToArray());
 

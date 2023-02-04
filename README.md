@@ -1,1 +1,1 @@
-# infra-endpoint-azure-func
+# infra-azure
