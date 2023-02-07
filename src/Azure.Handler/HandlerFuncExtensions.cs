@@ -40,23 +40,38 @@ public static class HandlerFuncExtensions
             =>
             failure.FailureAction switch
             {
-                HandlerFailureAction.Retry => throw new InvalidOperationException(failure.FailureMessage),
-                _ => Unit.Invoke(OnRemoveMessage<THandler, THandlerData>, context, handlerData, failure.FailureMessage)
+                HandlerFailureAction.Retry  => Unit.Invoke(OnRetryMessage<THandler>, context, jsonData, failure.FailureMessage),
+                _                           => Unit.Invoke(OnRemoveMessage<THandler>, context, jsonData, failure.FailureMessage)
             };
     }
 
-    private static void OnRemoveMessage<THandler, THandlerData>(
-        FunctionContext context, THandlerData handlerData, string message)
+    private static void OnRemoveMessage<THandler>(FunctionContext context, JsonElement jsonData, string message)
     {
         var logger = context.GetLogger(typeof(THandler).Name);
-        logger.LogWarning("Data will not be retried: {data}. Error: {error}", handlerData, message);
+        logger.LogWarning("Data will not be retried: {data}. Error: {error}", jsonData, message);
 
         context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(
             "RemoveMessage",
             new Dictionary<string, string>
             {
-                ["data"] = handlerData?.ToString() ?? string.Empty,
+                ["data"] = jsonData.ToString(),
                 ["message"] = message
             });
+    }
+
+    private static void OnRetryMessage<THandler>(FunctionContext context, JsonElement jsonData, string message)
+    {
+        var logger = context.GetLogger(typeof(THandler).Name);
+        logger.LogError("Data will be retried: {data}. Error: {error}", jsonData, message);
+
+        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(
+            "RetryMessage",
+            new Dictionary<string, string>
+            {
+                ["data"] = jsonData.ToString(),
+                ["message"] = message
+            });
+
+        throw new InvalidOperationException(message);
     }
 }
