@@ -8,11 +8,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>Microsoft.Extensions.Hosting</RootNamespace>
     <AssemblyName>GGroupp.Infra.Azure.Hosting</AssemblyName>
-    <Version>0.0.1-preview.1</Version>
+    <Version>0.0.1-preview.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GGroupp.Infra.Http.SocketsHandlerProvider" Version="2.3.1" />
+    <PackageReference Include="GGroupp.Infra.Http.SocketsHandlerProvider" Version="2.4.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.0.0-preview3" />
   </ItemGroup>
