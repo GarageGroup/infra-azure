@@ -21,8 +21,7 @@ internal static class FunctionSwaggerBuilder
             "public static HttpResponseData GetSwaggerDocument(")
         .BeginArguments()
         .AppendCodeLine(
-            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/{documentName}/swagger.json\")] HttpRequestData request,",
-            "string? documentName)")
+            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/swagger.{format}\")] HttpRequestData request, string? format)")
         .EndArguments()
         .BeginLambda()
         .AppendCodeLine(
@@ -30,11 +29,11 @@ internal static class FunctionSwaggerBuilder
         .BeginArguments()
         .AppendCodeLine(
             ".GetSwaggerOption(\"Swagger\")",
-            ".CreateBuilder(documentName)")
+            ".CreateBuilder(format)")
         .AppendEndpoints(
             resolverTypes)
         .AppendCodeLine(
-            ".BuildResponseJson(request);")
+            ".BuildResponse(request);")
         .EndArguments()
         .EndLambda()
         .EndCodeBlock()

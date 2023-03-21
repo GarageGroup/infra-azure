@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
 namespace GGroupp.Infra.Endpoint;
@@ -6,36 +9,38 @@ public sealed partial class FunctionSwaggerBuilder
 {
     private const string BasePathUrl = "/api/";
 
+    private static readonly string[] YamlFormats = new[] { "yaml", "yml" };
+
     private readonly OpenApiDocument document;
 
-    public FunctionSwaggerBuilder(SwaggerOption? swaggerOption, string? apiVersion)
-        =>
+    private readonly OpenApiFormat format;
+
+    public FunctionSwaggerBuilder(SwaggerOption? swaggerOption, string? format)
+    {
         document = new()
         {
-            Info = CreateInfo(swaggerOption, apiVersion)
+            Info = swaggerOption.InitializeOpenApiInfo() ?? new()
         };
 
-    private static OpenApiInfo? CreateInfo(SwaggerOption? swaggerOption, string? apiVersion)
-    {
-        var info = swaggerOption.InitializeOpenApiInfo();
-        if (string.IsNullOrEmpty(apiVersion))
-        {
-            return info;
-        }
-
-        if (info is null)
-        {
-            return new()
-            {
-                Version = apiVersion
-            };
-        }
-
-        info.Version = apiVersion;
-        return info;
+        this.format = ParseOpenApiFormat(format);
     }
 
     private static string GetEndpointPath(string route)
         =>
         BasePathUrl + route.TrimStart('/');
+
+    private static OpenApiFormat ParseOpenApiFormat(string? sourceValue)
+    {
+        if (string.IsNullOrEmpty(sourceValue))
+        {
+            return default;
+        }
+
+        if (YamlFormats.Contains(sourceValue, StringComparer.InvariantCultureIgnoreCase))
+        {
+            return OpenApiFormat.Yaml;
+        }
+
+        return OpenApiFormat.Json;
+    }
 }

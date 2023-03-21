@@ -5,11 +5,7 @@ namespace GGroupp.Infra.Endpoint;
 
 partial class FunctionSwaggerBuilder
 {
-    public string BuildJson()
+    public string Build()
         =>
-        document.Serialize(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Json);
-
-    public string BuildYaml()
-        =>
-        document.Serialize(OpenApiSpecVersion.OpenApi3_0, OpenApiFormat.Yaml);
+        document.Serialize(OpenApiSpecVersion.OpenApi3_0, format);
 }

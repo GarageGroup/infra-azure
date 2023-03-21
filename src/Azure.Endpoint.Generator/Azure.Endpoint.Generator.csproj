@@ -10,7 +10,7 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <RootNamespace>GGroupp.Infra</RootNamespace>
     <AssemblyName>GGroupp.Infra.Azure.Endpoint.Generator</AssemblyName>
-    <Version>0.0.3</Version>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,13 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GGroupp.CodeAnalysis.Extensions" Version="0.0.1" />
-    <PackageReference Include="GGroupp.CodeAnalysis.SourceBuilder" Version="0.0.1" />
+    <PackageReference Include="GGroupp.CodeAnalysis.Extensions" Version="0.1.1" />
+    <PackageReference Include="GGroupp.CodeAnalysis.SourceBuilder" Version="0.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
