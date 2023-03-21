@@ -6,6 +6,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 
 namespace GGroupp.Infra.Endpoint;
 
@@ -15,21 +16,23 @@ public static class EndpointSwaggerExtensions
         =>
         context?.InstanceServices.GetService<IConfiguration>()?.GetSwaggerOption(sectionName);
 
-    public static FunctionSwaggerBuilder CreateBuilder(this SwaggerOption? swaggerOption, string? apiVersion)
+    public static FunctionSwaggerBuilder CreateBuilder(this SwaggerOption? swaggerOption, string? format)
         =>
-        new(swaggerOption, apiVersion);
+        new(swaggerOption, format);
 
-    public static HttpResponseData BuildResponseJson(this FunctionSwaggerBuilder builder, HttpRequestData request)
+    public static HttpResponseData BuildResponse(this FunctionSwaggerBuilder builder, HttpRequestData request)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(request);
 
         var response = request.CreateResponse(HttpStatusCode.OK);
 
-        var json = builder.BuildJson();
-        response.WriteString(json);
+        var text = builder.Build();
+        response.WriteString(text);
 
-        _ = response.Headers.TryAddWithoutValidation("Content-Type", MediaTypeNames.Application.Json);
+        var contentType = builder.GetFormat() is OpenApiFormat.Yaml ? "application/yaml" : MediaTypeNames.Application.Json;
+        _ = response.Headers.TryAddWithoutValidation("Content-Type", contentType);
+
         return response;
     }
 
@@ -43,7 +46,7 @@ public static class EndpointSwaggerExtensions
             Title = swaggerOption.ApiName
         };
 
-        var url = $"{request.Url.Scheme}://{request.Url.Authority.TrimEnd('/')}/api/swagger/{swaggerOption.ApiVersion}/swagger.json";
+        var url = $"{request.Url.Scheme}://{request.Url.Authority.TrimEnd('/')}/api/swagger/swagger.json";
         var content = options.GetSwaggerUIContent(url);
 
         var response = request.CreateResponse(HttpStatusCode.OK);
