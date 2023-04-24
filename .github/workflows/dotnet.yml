@@ -86,6 +86,28 @@ jobs:
     - name: Pack Azure.Handler.Generator
       run: dotnet pack ./src/*/Azure.Handler.Generator.csproj --no-restore -o ~/nuget  -c Release
 
+    # Azure.KeepWarm
+
+    - name: Restore Azure.KeepWarm
+      run: dotnet restore ./src/*/Azure.KeepWarm.csproj
+
+    - name: Build Azure.KeepWarm
+      run: dotnet build ./src/*/Azure.KeepWarm.csproj --no-restore  -c Release
+
+    - name: Pack Azure.KeepWarm
+      run: dotnet pack ./src/*/Azure.KeepWarm.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.KeepWarm.Generator
+
+    - name: Restore Azure.KeepWarm.Generator
+      run: dotnet restore ./src/*/Azure.KeepWarm.Generator.csproj
+
+    - name: Build Azure.KeepWarm.Generator
+      run: dotnet build ./src/*/Azure.KeepWarm.Generator.csproj --no-restore  -c Release
+
+    - name: Pack Azure.KeepWarm.Generator
+      run: dotnet pack ./src/*/Azure.KeepWarm.Generator.csproj --no-restore -o ~/nuget  -c Release
+
     # Push
 
     - name: Push Packages
