@@ -108,6 +108,28 @@ jobs:
     - name: Pack Azure.KeepWarm.Generator
       run: dotnet pack ./src/*/Azure.KeepWarm.Generator.csproj --no-restore -o ~/nuget  -c Release
 
+    # Azure.HealthCheck
+
+    - name: Restore Azure.HealthCheck
+      run: dotnet restore ./src/*/Azure.HealthCheck.csproj
+
+    - name: Build Azure.HealthCheck
+      run: dotnet build ./src/*/Azure.HealthCheck.csproj --no-restore  -c Release
+
+    - name: Pack Azure.HealthCheck
+      run: dotnet pack ./src/*/Azure.HealthCheck.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.HealthCheck.Generator
+
+    - name: Restore Azure.HealthCheck.Generator
+      run: dotnet restore ./src/*/Azure.HealthCheck.Generator.csproj
+
+    - name: Build Azure.HealthCheck.Generator
+      run: dotnet build ./src/*/Azure.HealthCheck.Generator.csproj --no-restore  -c Release
+
+    - name: Pack Azure.HealthCheck.Generator
+      run: dotnet pack ./src/*/Azure.HealthCheck.Generator.csproj --no-restore -o ~/nuget  -c Release
+
     # Push
 
     - name: Push Packages
