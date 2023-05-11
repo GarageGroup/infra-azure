@@ -18,7 +18,7 @@ partial class HealthCheckFunctionBuilder
         .BeginCodeBlock()
         .AppendCodeLine(
             $"[Function({metadata.FunctionName.AsStringSourceCode()})]",
-            $"public static void Run({metadata.BuildHttpTriggerAttributeSourceCode()} HttpRequestData request)")
+            $"public static HttpResponseData Run({metadata.BuildHttpTriggerAttributeSourceCode()} HttpRequestData request)")
         .BeginLambda()
         .AppendCodeLine(
             $"HealthCheckFunction.Run(request);")
