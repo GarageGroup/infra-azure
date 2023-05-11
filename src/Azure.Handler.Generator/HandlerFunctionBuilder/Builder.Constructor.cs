@@ -1,6 +1,7 @@
 using System.Linq;
+using GGroupp;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 partial class HandlerFunctionBuilder
 {

@@ -1,4 +1,6 @@
-namespace GGroupp.Infra;
+using GGroupp;
+
+namespace GarageGroup.Infra;
 
 internal static class FunctionSwaggerUIBuilder
 {
@@ -7,7 +9,7 @@ internal static class FunctionSwaggerUIBuilder
         new SourceBuilder(
             swaggerUI.Namespace)
         .AddUsing(
-            "GGroupp.Infra.Endpoint",
+            "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
         .AppendCodeLine(

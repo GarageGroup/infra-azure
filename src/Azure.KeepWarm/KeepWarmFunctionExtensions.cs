@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 public static class KeepWarmFunctionExtensions
 {

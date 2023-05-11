@@ -1,10 +1,11 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GGroupp.Infra;
 using Microsoft.Azure.Functions.Worker;
 using PrimeFuncPack;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 public static class HandlerFuncDependencyExtensions
 {

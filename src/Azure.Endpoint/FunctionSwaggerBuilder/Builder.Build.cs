@@ -1,7 +1,7 @@
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Extensions;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 partial class FunctionSwaggerBuilder
 {

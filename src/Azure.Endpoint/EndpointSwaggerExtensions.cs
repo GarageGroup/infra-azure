@@ -2,13 +2,14 @@ using System;
 using System.Net;
 using System.Net.Mime;
 using AzureFunctions.Extensions.Swashbuckle.Settings;
+using GGroupp.Infra;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 public static class EndpointSwaggerExtensions
 {

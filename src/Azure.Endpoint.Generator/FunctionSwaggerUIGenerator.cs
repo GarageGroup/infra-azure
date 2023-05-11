@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 [Generator]
 internal sealed class FunctionSwaggerUIGenerator : ISourceGenerator

@@ -1,4 +1,6 @@
-namespace GGroupp.Infra;
+using GGroupp;
+
+namespace GarageGroup.Infra;
 
 internal sealed record class HandlerResolverMetadata
 {

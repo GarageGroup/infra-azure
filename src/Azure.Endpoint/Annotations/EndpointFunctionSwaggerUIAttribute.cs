@@ -1,6 +1,6 @@
 using System;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class EndpointFunctionSwaggerUIAttribute : Attribute

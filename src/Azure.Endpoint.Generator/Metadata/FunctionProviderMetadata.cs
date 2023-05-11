@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using GGroupp;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 internal sealed record class FunctionProviderMetadata
 {
