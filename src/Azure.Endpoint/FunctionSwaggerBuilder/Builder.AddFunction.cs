@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.OpenApi.Models;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 partial class FunctionSwaggerBuilder
 {

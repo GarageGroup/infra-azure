@@ -1,9 +1,10 @@
 using System;
 using System.Linq;
+using GGroupp.Infra;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 public sealed partial class FunctionSwaggerBuilder
 {

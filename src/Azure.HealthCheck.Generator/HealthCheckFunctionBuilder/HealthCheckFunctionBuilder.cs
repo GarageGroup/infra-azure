@@ -1,6 +1,6 @@
 namespace GarageGroup.Infra;
 
-internal static partial class KeepWarmFunctionBuilder
+internal static partial class HealthCheckFunctionBuilder
 {
     private static string AsStringSourceCode(this string? source, string defaultSourceCode = "\"\"")
         =>

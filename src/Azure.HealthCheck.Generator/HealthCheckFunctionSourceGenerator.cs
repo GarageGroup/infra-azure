@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis;
 namespace GarageGroup.Infra;
 
 [Generator]
-internal sealed class KeepWarmFunctionSourceGenerator : ISourceGenerator
+internal sealed class HealthCheckFunctionSourceGenerator : ISourceGenerator
 {
     public void Execute(GeneratorExecutionContext context)
     {
-        foreach (var providerType in context.GetKeepWarmTypes())
+        foreach (var providerType in context.GetHealthCheckTypes())
         {
             var sourceCode = providerType.BuildFunctionSourceCode();
             context.AddSource($"{providerType.TypeName}.g.cs", sourceCode);

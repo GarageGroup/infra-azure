@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
+using GGroupp;
 using Microsoft.CodeAnalysis;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 partial class SourceGeneratorExtensions
 {

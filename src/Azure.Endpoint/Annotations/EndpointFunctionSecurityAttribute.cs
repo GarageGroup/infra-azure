@@ -1,6 +1,6 @@
 using System;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class EndpointFunctionSecurityAttribute : Attribute

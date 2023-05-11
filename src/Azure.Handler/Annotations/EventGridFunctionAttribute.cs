@@ -1,6 +1,6 @@
 using System;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class EventGridFunctionAttribute : HandlerFunctionAttribute

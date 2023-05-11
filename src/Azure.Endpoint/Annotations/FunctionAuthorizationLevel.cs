@@ -1,4 +1,4 @@
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 public enum FunctionAuthorizationLevel
 {

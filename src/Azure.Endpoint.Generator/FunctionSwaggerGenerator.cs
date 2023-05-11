@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 [Generator]
 internal sealed class FunctionSwaggerGenerator : ISourceGenerator

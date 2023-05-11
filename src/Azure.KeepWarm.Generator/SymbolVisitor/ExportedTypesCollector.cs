@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 internal sealed class ExportedTypesCollector : SymbolVisitor
 {

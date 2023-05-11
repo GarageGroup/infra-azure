@@ -1,4 +1,6 @@
-namespace GGroupp.Infra;
+using GGroupp;
+
+namespace GarageGroup.Infra;
 
 partial class KeepWarmFunctionBuilder
 {
@@ -7,7 +9,7 @@ partial class KeepWarmFunctionBuilder
         new SourceBuilder(
             metadata.Namespace)
         .AddUsing(
-            "GGroupp.Infra",
+            "GarageGroup.Infra",
             "Microsoft.Azure.Functions.Worker")
         .AppendCodeLine(
             $"public static class {metadata.TypeName}")

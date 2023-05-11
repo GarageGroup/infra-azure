@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using GGroupp;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 internal static class FunctionSwaggerBuilder
 {
@@ -10,7 +11,7 @@ internal static class FunctionSwaggerBuilder
         new SourceBuilder(
             swagger.Namespace)
         .AddUsing(
-            "GGroupp.Infra.Endpoint",
+            "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
         .AppendCodeLine(

@@ -1,6 +1,7 @@
 using System.Text;
+using GGroupp;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 partial class FunctionBuilder
 {
@@ -11,7 +12,7 @@ partial class FunctionBuilder
         .AddUsing(
             "System.Threading",
             "System.Threading.Tasks",
-            "GGroupp.Infra.Endpoint",
+            "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
         .AppendCodeLine(

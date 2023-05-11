@@ -6,16 +6,16 @@
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <RootNamespace>GGroupp.Infra</RootNamespace>
-    <AssemblyName>GGroupp.Infra.Azure.Endpoint</AssemblyName>
+    <RootNamespace>GarageGroup.Infra</RootNamespace>
+    <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
     <Version>0.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AzureExtensions.Swashbuckle" Version="3.3.2" />
-    <PackageReference Include="GGroupp.Infra.Endpoint.Core" Version="0.7.4" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.7.4" />
     <PackageReference Include="GGroupp.Infra.Swagger.Option" Version="2.3.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.11.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.12.1" />
     <PackageReference Include="PrimeFuncPack.Dependency.Core" Version="2.0.2" />
   </ItemGroup>
 

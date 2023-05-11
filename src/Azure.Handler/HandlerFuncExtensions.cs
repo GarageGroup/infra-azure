@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using GGroupp.Infra;
 using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 public static class HandlerFuncExtensions
 {

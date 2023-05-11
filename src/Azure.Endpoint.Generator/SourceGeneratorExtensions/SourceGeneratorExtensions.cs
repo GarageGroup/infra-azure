@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 internal static partial class SourceGeneratorExtensions
 {
-    private const string DefaultNamespace = "GGroupp.Infra";
+    private const string DefaultNamespace = "GarageGroup.Infra";
 
-    private const string EndpointNamespace = "GGroupp.Infra.Endpoint";
+    private const string EndpointNamespace = "GarageGroup.Infra.Endpoint";
 
     private const string ResolverStandardStart = "Use";
 

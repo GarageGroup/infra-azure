@@ -6,7 +6,7 @@ using AzureFunctions.Extensions.Swashbuckle;
 using AzureFunctions.Extensions.Swashbuckle.Settings;
 using AzureFunctions.Extensions.Swashbuckle.SwashBuckle;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 internal static class FunctionSwaggerUIHelper
 {

@@ -9,7 +9,7 @@ using System.Web;
 using Microsoft.Azure.Functions.Worker.Http;
 using PrimeFuncPack;
 
-namespace GGroupp.Infra.Endpoint;
+namespace GarageGroup.Infra.Endpoint;
 
 public static class EndpointFuncDependencyExtensions
 {

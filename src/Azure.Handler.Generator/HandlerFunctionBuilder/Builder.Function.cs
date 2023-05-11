@@ -1,6 +1,7 @@
 using System.Text;
+using GGroupp;
 
-namespace GGroupp.Infra;
+namespace GarageGroup.Infra;
 
 partial class HandlerFunctionBuilder
 {
@@ -11,7 +12,7 @@ partial class HandlerFunctionBuilder
         .AddUsing(
             "System.Text.Json",
             "System.Threading.Tasks",
-            "GGroupp.Infra",
+            "GarageGroup.Infra",
             "Microsoft.Azure.Functions.Worker")
         .AppendCodeLine(
             $"partial class {provider.TypeName}")
