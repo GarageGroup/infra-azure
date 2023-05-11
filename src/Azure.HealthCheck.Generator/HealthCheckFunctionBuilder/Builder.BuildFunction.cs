@@ -10,6 +10,7 @@ partial class HealthCheckFunctionBuilder
         new SourceBuilder(
             metadata.Namespace)
         .AddUsing(
+            "GarageGroup.Infra",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
         .AppendCodeLine(
