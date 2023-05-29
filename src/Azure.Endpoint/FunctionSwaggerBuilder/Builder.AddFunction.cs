@@ -46,9 +46,9 @@ partial class FunctionSwaggerBuilder
         return this;
     }
 
-    private static OpenApiPathItem GetOrCreatePathItem(OpenApiPaths paths, EndpointMetadata metadata)
+    private OpenApiPathItem GetOrCreatePathItem(OpenApiPaths paths, EndpointMetadata metadata)
     {
-        var path = GetEndpointPath(metadata.Route);
+        var path = context.GetRouteUrl(metadata.Route);
         if (paths.TryGetValue(path, out var pathItem))
         {
             return pathItem;

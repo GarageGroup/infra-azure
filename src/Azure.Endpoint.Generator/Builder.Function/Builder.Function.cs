@@ -19,7 +19,7 @@ partial class FunctionBuilder
             $"partial class {provider.TypeName}")
         .BeginCodeBlock()
         .AppendCodeLine(
-            $"[Function({resolver.FunctionName.AsStringSourceCode(EmptyStringConstantSourceCode)})]",
+            $"[Function({resolver.FunctionName.AsStringSourceCode(StringHelper.EmptyStringConstantSourceCode)})]",
             $"public static Task<HttpResponseData> {resolver.FunctionMethodName}(")
         .BeginArguments()
         .AppendCodeLine(
