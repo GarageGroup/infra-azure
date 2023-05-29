@@ -8,9 +8,8 @@ partial class FunctionSwaggerBuilder
     public FunctionSwaggerBuilder Configure(Action<OpenApiDocument> configure)
     {
         ArgumentNullException.ThrowIfNull(configure);
-        
+
         configure(document);
-        
         return this;
     }
 }

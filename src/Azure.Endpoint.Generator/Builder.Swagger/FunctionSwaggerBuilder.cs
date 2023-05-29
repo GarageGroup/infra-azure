@@ -11,6 +11,8 @@ internal static class FunctionSwaggerBuilder
         new SourceBuilder(
             swagger.Namespace)
         .AddUsing(
+            "System.Threading",
+            "System.Threading.Tasks",
             "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
@@ -19,23 +21,20 @@ internal static class FunctionSwaggerBuilder
         .BeginCodeBlock()
         .AppendCodeLine(
             "[Function(\"GetSwaggerDocument\")]",
-            "public static HttpResponseData GetSwaggerDocument(")
+            "public static Task<HttpResponseData> GetSwaggerDocumentAsync(")
         .BeginArguments()
         .AppendCodeLine(
-            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/swagger.{format}\")] HttpRequestData request, string? format)")
+            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/swagger.{format}\")] HttpRequestData request,")
+        .AppendCodeLine("string? format,")
+        .AppendCodeLine("CancellationToken cancellationToken)")
         .EndArguments()
         .BeginLambda()
         .AppendCodeLine(
-            "request.FunctionContext")
-        .BeginArguments()
-        .AppendCodeLine(
-            ".GetSwaggerOption(\"Swagger\")",
-            ".CreateBuilder(format)")
+            "request.CreateStandardSwaggerBuilder()")
         .AppendEndpoints(
             resolverTypes)
         .AppendCodeLine(
-            ".BuildResponse(request);")
-        .EndArguments()
+            ".BuildResponseAsync(request, format, cancellationToken);")
         .EndLambda()
         .EndCodeBlock()
         .Build();

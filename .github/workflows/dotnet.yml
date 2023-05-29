@@ -42,6 +42,17 @@ jobs:
     - name: Pack Azure.Hosting
       run: dotnet pack ./src/*/Azure.Hosting.csproj --no-restore -o ~/nuget  -c Release
 
+    # Azure.Swagger
+
+    - name: Restore Azure.Swagger
+      run: dotnet restore ./src/*/Azure.Swagger.csproj
+
+    - name: Build Azure.Swagger
+      run: dotnet build ./src/*/Azure.Swagger.csproj --no-restore  -c Release
+
+    - name: Pack Azure.Swagger
+      run: dotnet pack ./src/*/Azure.Swagger.csproj --no-restore -o ~/nuget  -c Release
+
     # Azure.Endpoint
 
     - name: Restore Azure.Endpoint

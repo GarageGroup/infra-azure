@@ -1,11 +1,10 @@
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Extensions;
+using Microsoft.OpenApi.Models;
 
 namespace GarageGroup.Infra.Endpoint;
 
 partial class FunctionSwaggerBuilder
 {
-    public string Build()
+    public OpenApiDocument Build()
         =>
-        document.Serialize(OpenApiSpecVersion.OpenApi3_0, format);
+        document;
 }

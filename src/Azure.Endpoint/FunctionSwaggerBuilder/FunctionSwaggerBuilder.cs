@@ -1,47 +1,21 @@
-using System;
-using System.Linq;
-using GGroupp.Infra;
-using Microsoft.OpenApi;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.OpenApi.Models;
 
 namespace GarageGroup.Infra.Endpoint;
 
-public sealed partial class FunctionSwaggerBuilder
+public sealed partial class FunctionSwaggerBuilder : ISwaggerDocumentProvider
 {
-    private const string BasePathUrl = "/api/";
-
-    private static readonly string[] YamlFormats = new[] { "yaml", "yml" };
-
     private readonly OpenApiDocument document;
 
-    private readonly OpenApiFormat format;
+    private readonly FunctionContext context;
 
-    public FunctionSwaggerBuilder(SwaggerOption? swaggerOption, string? format)
+    public FunctionSwaggerBuilder(SwaggerOption? swaggerOption, FunctionContext context)
     {
         document = new()
         {
             Info = swaggerOption.InitializeOpenApiInfo() ?? new()
         };
 
-        this.format = ParseOpenApiFormat(format);
-    }
-
-    private static string GetEndpointPath(string route)
-        =>
-        BasePathUrl + route.TrimStart('/');
-
-    private static OpenApiFormat ParseOpenApiFormat(string? sourceValue)
-    {
-        if (string.IsNullOrEmpty(sourceValue))
-        {
-            return default;
-        }
-
-        if (YamlFormats.Contains(sourceValue, StringComparer.InvariantCultureIgnoreCase))
-        {
-            return OpenApiFormat.Yaml;
-        }
-
-        return OpenApiFormat.Json;
+        this.context = context;
     }
 }
