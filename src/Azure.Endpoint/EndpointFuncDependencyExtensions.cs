@@ -77,7 +77,7 @@ public static class EndpointFuncDependencyExtensions
 
         static KeyValuePair<string, string?> MapHeader(KeyValuePair<string, IEnumerable<string>> pair)
             =>
-            new(pair.Key, string.Join(',', pair));
+            new(pair.Key, string.Join(',', pair.Value));
 
         static KeyValuePair<string, string?> MapBindingData(KeyValuePair<string, object?> pair)
             =>
