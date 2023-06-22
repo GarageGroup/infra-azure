@@ -2,9 +2,9 @@ namespace GarageGroup.Infra;
 
 internal static partial class HandlerFunctionBuilder
 {
-    private const string EmptyStringConstantSourceCode = "\"\"";
+    private const string EmptyStringSourceCode = "string.Empty";
 
-    private static string AsStringSourceCode(this string? source, string defaultSourceCode = "string.Empty")
+    private static string AsStringSourceCode(this string? source, string defaultSourceCode = "\"\"")
         =>
         string.IsNullOrEmpty(source) ? defaultSourceCode : $"\"{source.EncodeString()}\"";
 

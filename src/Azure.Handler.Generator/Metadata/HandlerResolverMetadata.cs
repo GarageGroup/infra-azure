@@ -6,41 +6,37 @@ internal sealed record class HandlerResolverMetadata
 {
     public HandlerResolverMetadata(
         DisplayedTypeData handlerType,
-        DisplayedTypeData evendDataType,
-        string functionAttributeTypeName,
-        string functionAttributeNamespace,
+        DisplayedTypeData inputType,
+        DisplayedTypeData outputType,
         string resolverMethodName,
         string functionMethodName,
-        string dependencyFieldName,
         string functionName,
-        string? jsonRootPath)
+        string? jsonRootPath,
+        BaseFunctionData functionData)
     {
         HandlerType = handlerType;
-        EvendDataType = evendDataType;
-        FunctionAttributeTypeName = functionAttributeTypeName ?? string.Empty;
-        FunctionAttributeNamespace = functionAttributeNamespace ?? string.Empty;
+        InputType = inputType;
+        OutputType = outputType;
         ResolverMethodName = resolverMethodName ?? string.Empty;
         FunctionMethodName = functionMethodName ?? string.Empty;
-        DependencyFieldName = dependencyFieldName;
         FunctionName = functionName ?? string.Empty;
         JsonRootPath = jsonRootPath;
+        FunctionData = functionData;
     }
 
     public DisplayedTypeData HandlerType { get; }
 
-    public DisplayedTypeData EvendDataType { get; }
+    public DisplayedTypeData InputType { get; }
 
-    public string FunctionAttributeTypeName { get; }
-
-    public string FunctionAttributeNamespace { get; }
+    public DisplayedTypeData OutputType { get; }
 
     public string ResolverMethodName { get; }
 
     public string FunctionMethodName { get; }
 
-    public string DependencyFieldName { get; }
-
     public string FunctionName { get; }
 
     public string? JsonRootPath { get; }
+
+    public BaseFunctionData FunctionData { get; }
 }

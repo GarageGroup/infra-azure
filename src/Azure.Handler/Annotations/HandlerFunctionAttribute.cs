@@ -2,7 +2,7 @@ using System;
 
 namespace GarageGroup.Infra;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public abstract class HandlerFunctionAttribute : Attribute
 {
     public HandlerFunctionAttribute(string name)
