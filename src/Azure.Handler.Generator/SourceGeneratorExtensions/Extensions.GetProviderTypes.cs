@@ -18,36 +18,39 @@ internal static partial class SourceGeneratorExtensions
 
     private static FunctionProviderMetadata? GetFunctionMetadata(INamedTypeSymbol typeSymbol)
     {
-        var providerAttribute = typeSymbol.GetAttributes().FirstOrDefault(IsFunctionProviderAttribute);
-        if (providerAttribute is null)
+        if (typeSymbol.TypeArguments.Any())
         {
             return null;
         }
 
-        if (typeSymbol.TypeArguments.Any())
+        var resolverTypes = typeSymbol.GetMembers().OfType<IMethodSymbol>().SelectMany(GetResolversMetadata).ToArray();
+        if (resolverTypes.Any() is false)
         {
-            throw new InvalidOperationException($"Function provider class '{typeSymbol.Name}' must not have generic arguments");
+            return null;
         }
 
         return new(
             @namespace: typeSymbol.ContainingNamespace.ToString(),
             typeName: typeSymbol.Name + "HandlerFunction",
             providerType: typeSymbol.GetDisplayedData(),
-            resolverTypes: typeSymbol.GetMembers().OfType<IMethodSymbol>().Select(GetResolverMetadata).NotNull().ToArray());
-
-        static bool IsFunctionProviderAttribute(AttributeData attributeData)
-            =>
-            attributeData.AttributeClass?.IsType(DefaultNamespace, "HandlerFunctionProviderAttribute") is true;
+            resolverTypes: resolverTypes);
     }
 
-    private static HandlerResolverMetadata? GetResolverMetadata(IMethodSymbol methodSymbol)
+    private static IReadOnlyList<HandlerResolverMetadata> GetResolversMetadata(IMethodSymbol methodSymbol)
     {
-        var functionAttribute = methodSymbol.GetAttributes().FirstOrDefault(IsFunctionAttribute);
-        if (functionAttribute is null)
-        {
-            return null;
-        }
+        return methodSymbol.GetAttributes().Where(IsFunctionAttribute).Select(InnerGetResolverMetadata).ToArray();
 
+        static bool IsFunctionAttribute(AttributeData attributeData)
+            =>
+            attributeData.AttributeClass?.BaseType?.IsType(DefaultNamespace, "HandlerFunctionAttribute") is true;
+
+        HandlerResolverMetadata InnerGetResolverMetadata(AttributeData functionAttribute)
+            =>
+            GetResolverMetadata(methodSymbol, functionAttribute);
+    }
+
+    private static HandlerResolverMetadata GetResolverMetadata(this IMethodSymbol methodSymbol, AttributeData functionAttribute)
+    {
         if (methodSymbol.IsStatic is false)
         {
             throw methodSymbol.CreateInvalidMethodException("must be static");
@@ -75,32 +78,56 @@ internal static partial class SourceGeneratorExtensions
         }
 
         var handlerType = returnType.TypeArguments[0] as INamedTypeSymbol;
-        var eventDataType = handlerType?.AllInterfaces.FirstOrDefault(IsHandlerType)?.TypeArguments.FirstOrDefault();
-        if (handlerType is null || eventDataType is null)
+        var handlerInterface = handlerType?.AllInterfaces.FirstOrDefault(IsHandlerType);
+
+        var inputType = handlerInterface?.TypeArguments.FirstOrDefault();
+        var outputType = handlerInterface?.TypeArguments.ElementAtOrDefault(1);
+
+        if (handlerType is null || inputType is null || outputType is null)
         {
-            throw methodSymbol.CreateInvalidMethodException($"must resolve a type that implements {DefaultNamespace}.IHandler<TEventData>");
+            throw methodSymbol.CreateInvalidMethodException($"must resolve a type that implements {DefaultNamespace}.IHandler<TIn, TOut>");
         }
 
-        var name = methodSymbol.Name.RemoveStandardStart();
+        var functionName = functionAttribute.GetAttributeValue(0, "Name")?.ToString() ?? methodSymbol.Name;
 
         return new(
             handlerType: handlerType.GetDisplayedData(),
-            evendDataType: eventDataType.GetDisplayedData(),
-            functionAttributeTypeName: "EventGridTrigger",
-            functionAttributeNamespace: "Microsoft.Azure.Functions.Worker",
+            inputType: inputType.GetDisplayedData(),
+            outputType: outputType.GetDisplayedData(),
             resolverMethodName: methodSymbol.Name,
-            functionMethodName: name.ReplaceStandardEnd().SetLastWordAsFirst() + "Async",
-            dependencyFieldName: name.FromLowerCase() + "Dependency",
-            functionName: functionAttribute.GetAttributeValue(0, "Name")?.ToString() ?? string.Empty,
-            jsonRootPath: eventDataType.GetJsonRootPath());
-
-        static bool IsFunctionAttribute(AttributeData attributeData)
-            =>
-            attributeData.AttributeClass?.IsType(DefaultNamespace, "EventGridFunctionAttribute") is true;
+            functionMethodName: functionName + "Async",
+            functionName: functionName,
+            jsonRootPath: inputType.GetJsonRootPath(),
+            functionData: functionAttribute.GetFunctionData());
 
         static bool IsHandlerType(INamedTypeSymbol typeSymbol)
             =>
-            typeSymbol.IsType(DefaultNamespace, "IHandler") && typeSymbol.TypeParameters.Length is 1;
+            typeSymbol.IsType(DefaultNamespace, "IHandler") && typeSymbol.TypeParameters.Length is 2;
+    }
+
+    private static BaseFunctionData GetFunctionData(this AttributeData functionAttribute)
+    {
+        if (functionAttribute.AttributeClass?.IsType(DefaultNamespace, "EventGridFunctionAttribute") is true)
+        {
+            return new EventGridFunctionData();
+        }
+
+        if (functionAttribute.AttributeClass?.IsType(DefaultNamespace, "HttpFunctionAttribute") is true)
+        {
+            return new HttpFunctionData(
+                method: functionAttribute.GetAttributeValue(1)?.ToString() ?? string.Empty,
+                functionRoute: functionAttribute.GetAttributePropertyValue("Route")?.ToString(),
+                authorizationLevel: functionAttribute.GetAuthorizationLevel());
+        }
+
+        if (functionAttribute.AttributeClass?.IsType(DefaultNamespace, "ServiceBusFunctionAttribute") is true)
+        {
+            return new ServiceBusFunctionData(
+                queueName: functionAttribute.GetAttributeValue(1)?.ToString() ?? string.Empty,
+                connection: functionAttribute.GetAttributeValue(2)?.ToString() ?? string.Empty);
+        }
+
+        throw new InvalidOperationException($"An unexpected HandlerFunctionAttribute type: '{functionAttribute.AttributeClass?.Name}'");
     }
 
     private static string? GetJsonRootPath(this ITypeSymbol eventDataType)
@@ -110,5 +137,21 @@ internal static partial class SourceGeneratorExtensions
         static bool IsHandlerDataJsonAttribute(AttributeData attributeData)
             =>
             attributeData.AttributeClass?.IsType(DefaultNamespace, "HandlerDataJsonAttribute") is true;
+    }
+
+    private static int GetAuthorizationLevel(this AttributeData functionAttribute)
+    {
+        var levelValue = functionAttribute.GetAttributePropertyValue("AuthLevel");
+        if (levelValue is null)
+        {
+            return default;
+        }
+
+        if (levelValue is not int level)
+        {
+            throw new InvalidOperationException($"An unexpected bot function authorization level: {levelValue}");
+        }
+
+        return level;
     }
 }

@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text;
 using GGroupp;
 
 namespace GarageGroup.Infra;
@@ -7,68 +8,23 @@ partial class HandlerFunctionBuilder
 {
     internal static string BuildConstructorSourceCode(this FunctionProviderMetadata provider)
         =>
-        provider.ResolverTypes.Any() ? provider.BuildNotEmptyConstructorSourceCode() : provider.BuildEmptyConstructorSourceCode();
-
-    private static string BuildEmptyConstructorSourceCode(this FunctionProviderMetadata provider)
-        =>
         new SourceBuilder(
             provider.Namespace)
         .AppendCodeLine(
-            $"public static class {provider.TypeName}")
+            provider.BuildClassHeader())
         .BeginCodeBlock()
         .EndCodeBlock()
         .Build();
 
-    private static string BuildNotEmptyConstructorSourceCode(this FunctionProviderMetadata provider)
-        =>
-        new SourceBuilder(
-            provider.Namespace)
-        .AddUsings(
-            provider.ProviderType.AllNamespaces)
-        .AddUsing(
-            "PrimeFuncPack")
-        .AppendCodeLine(
-            $"public static partial class {provider.TypeName}")
-        .BeginCodeBlock()
-        .AppendDependencyFields(provider)
-        .AppendStaticConstructor(provider)
-        .EndCodeBlock()
-        .Build();
-
-    private static SourceBuilder AppendStaticConstructor(this SourceBuilder builder, FunctionProviderMetadata provider)
+    private static string BuildClassHeader(this FunctionProviderMetadata provider)
     {
-        builder = builder.AppendCodeLine($"static {provider.TypeName}()");
+        var builder = new StringBuilder("public static");
 
-        if (provider.ResolverTypes.Count is 1)
+        if (provider.ResolverTypes.Any())
         {
-            var line = GetResolverInitializationLine(provider.ResolverTypes[0]);
-            return builder.BeginLambda().AppendCodeLine(line).EndLambda();
+            builder = builder.Append(" partial");
         }
 
-        builder = builder.BeginCodeBlock();
-
-        foreach (var initializationLine in provider.ResolverTypes.Select(GetResolverInitializationLine))
-        {
-            builder = builder.AppendCodeLine(initializationLine);
-        }
-
-        return builder.EndCodeBlock();
-
-        string GetResolverInitializationLine(HandlerResolverMetadata resolver)
-            =>
-            $"{resolver.DependencyFieldName} = {provider.ProviderType.DisplayedTypeName}.{resolver.ResolverMethodName}();";
-    }
-
-    private static SourceBuilder AppendDependencyFields(this SourceBuilder builder, FunctionProviderMetadata provider)
-    {
-        foreach (var resolver in provider.ResolverTypes)
-        {
-            builder = builder.AddUsings(resolver.HandlerType.AllNamespaces).AppendCodeLine(
-                $"private static readonly Dependency<{resolver.HandlerType.DisplayedTypeName}> {resolver.DependencyFieldName};");
-
-            builder = builder.AppendEmptyLine();
-        }
-
-        return builder;
+        return builder.Append(" class ").Append(provider.TypeName).ToString();
     }
 }
