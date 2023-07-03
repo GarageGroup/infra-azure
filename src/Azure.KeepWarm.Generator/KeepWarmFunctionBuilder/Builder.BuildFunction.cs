@@ -1,5 +1,3 @@
-using GGroupp;
-
 namespace GarageGroup.Infra;
 
 partial class KeepWarmFunctionBuilder
