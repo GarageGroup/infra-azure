@@ -25,34 +25,28 @@ partial class HandlerFuncExtensions
     }
 
     internal static async Task InternalInvokeAzureFunctionAsync<THandler, TIn, TOut>(
-        this THandler handler, JsonElement jsonData, FunctionContext context, CancellationToken cancellationToken)
+        this THandler handler, JsonElement json, FunctionContext context, CancellationToken cancellationToken)
         where THandler : IHandler<TIn, TOut>
     {
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
 
-        var result = await InnerInvokeAsync(tokenSource.Token).ConfigureAwait(false);
-        _ = result.Fold(Unit.From, OnFailure);
-
-        async ValueTask<Result<TOut, Failure<HandlerFailureCode>>> InnerInvokeAsync(CancellationToken token)
+        try
         {
-            try
-            {
-                var handlerData = jsonData.Deserialize<TIn>(SerializerOptions);
-                return await handler.HandleAsync(handlerData, token).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                LogException(context, jsonData, ex);
-                throw;
-            }
+            var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleAsync, tokenSource.Token).ConfigureAwait(false);
+            _ = result.Fold(Unit.From, OnFailure);
+        }
+        catch (Exception ex)
+        {
+            LogException(context, json, ex);
+            throw;
         }
 
         Unit OnFailure(Failure<HandlerFailureCode> failure)
             =>
             failure.FailureCode switch
             {
-                HandlerFailureCode.Transient    => Unit.Invoke(OnTransientFailure, context, jsonData, failure.FailureMessage),
-                _                               => Unit.Invoke(OnPersistentFailure, context, jsonData, failure.FailureMessage)
+                HandlerFailureCode.Transient    => Unit.Invoke(OnTransientFailure, context, json, failure.FailureMessage),
+                _                               => Unit.Invoke(OnPersistentFailure, context, json, failure.FailureMessage)
             };
 
         static void OnPersistentFailure(FunctionContext context, JsonElement jsonData, string message)

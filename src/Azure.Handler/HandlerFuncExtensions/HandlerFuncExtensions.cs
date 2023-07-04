@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
@@ -17,6 +18,46 @@ public static partial class HandlerFuncExtensions
     static HandlerFuncExtensions()
         =>
         SerializerOptions = new(JsonSerializerDefaults.Web);
+
+    private static Result<T?, Failure<HandlerFailureCode>> DeserializeOrFailure<T>(this JsonElement json)
+    {
+        try
+        {
+            return json.Deserialize<T>(SerializerOptions);
+        }
+        catch (Exception exception)
+        {
+            return exception.CreateDeserializerFailure();
+        }
+    }
+
+    private static Result<T?, Failure<HandlerFailureCode>> DeserializeOrFailure<T>(this string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<T>(json, SerializerOptions);
+        }
+        catch (Exception exception)
+        {
+            return exception.CreateDeserializerFailure();
+        }
+    }
+
+    private static Failure<HandlerFailureCode> CreateDeserializerFailure(this Exception exception)
+        =>
+        new(HandlerFailureCode.Persistent, $"An unexpected error occured when the request body was being deserialized: '{exception.Message}'");
+
+    private static ValueTask<Result<TOut, Failure<HandlerFailureCode>>> ForwardValueAsync<TIn, TOut>(
+        this Result<TIn, Failure<HandlerFailureCode>> source,
+        Func<TIn, CancellationToken, ValueTask<Result<TOut, Failure<HandlerFailureCode>>>> nextAsync,
+        CancellationToken cancellationToken)
+    {
+        return source.ForwardValueAsync(InnerInvokeAsync);
+
+        ValueTask<Result<TOut, Failure<HandlerFailureCode>>> InnerInvokeAsync(TIn input)
+            =>
+            nextAsync.Invoke(input, cancellationToken);
+    }
 
     private static async Task<string> ReadAsStringAsync(this Stream stream)
     {

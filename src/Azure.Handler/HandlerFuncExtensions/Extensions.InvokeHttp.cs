@@ -34,23 +34,17 @@ partial class HandlerFuncExtensions
         var context = request.FunctionContext;
 
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(request.FunctionContext.CancellationToken, cancellationToken);
-        var requestBody = await request.Body.ReadAsStringAsync().ConfigureAwait(false);
+        var json = await request.Body.ReadAsStringAsync().ConfigureAwait(false);
 
-        var result = await InnerInvokeAsync(requestBody, tokenSource.Token).ConfigureAwait(false);
-        return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
-
-        async ValueTask<Result<TOut, Failure<HandlerFailureCode>>> InnerInvokeAsync(string body, CancellationToken token)
+        try
         {
-            try
-            {
-                var handlerData = JsonSerializer.Deserialize<TIn>(body, SerializerOptions);
-                return await handler.HandleAsync(handlerData, token).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InnerLogException(request.FunctionContext, requestBody, ex);
-                throw;
-            }
+            var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleAsync, tokenSource.Token).ConfigureAwait(false);
+            return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
+        }
+        catch (Exception ex)
+        {
+            InnerLogException(request.FunctionContext, json, ex);
+            throw;
         }
 
         HttpResponseData InnerCreateSuccessResponse(TOut @out)
@@ -70,7 +64,7 @@ partial class HandlerFuncExtensions
             var message = failure.FailureMessage;
 
             context.GetLogger(context.FunctionDefinition.Name).LogError("An unexpected persistent HTTP Function error occured: {error}", message);
-            context.TrackTransientFailure(requestBody, message);
+            context.TrackTransientFailure(json, message);
 
             return request.CreatePersistentFailureResponse(failure);
         }
@@ -80,7 +74,7 @@ partial class HandlerFuncExtensions
             var message = failure.FailureMessage;
 
             context.GetLogger(context.FunctionDefinition.Name).LogError("An unexpected transient HTTP Function error occured: {error}", message);
-            context.TrackTransientFailure(requestBody, message);
+            context.TrackTransientFailure(json, message);
 
             return request.CreateResponse(HttpStatusCode.InternalServerError);
         }
