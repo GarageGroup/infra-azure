@@ -52,7 +52,7 @@ partial class HandlerFunctionBuilder
 
         var triggerAttributeSourceCode = resolver.FunctionData switch
         {
-            EventGridFunctionData => "EventGridTrigger",
+            EventGridFunctionData => "[EventGridTrigger]",
             ServiceBusFunctionData busFunctionData => busFunctionData.BuildServiceBusTriggerAttributeSourceCode(),
             _ => throw new InvalidOperationException($"An unexpected function data type: {resolver.FunctionData.GetType()}")
         };
