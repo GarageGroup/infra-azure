@@ -8,13 +8,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Handler</AssemblyName>
-    <Version>0.3.1</Version>
+    <Version>0.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GarageGroup.Infra.Handler.Core" Version="0.1.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.13.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.14.0" />
     <PackageReference Include="PrimeFuncPack.Dependency" Version="2.0.2" />
   </ItemGroup>
 
