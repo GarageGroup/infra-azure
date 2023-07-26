@@ -1,46 +1,39 @@
 using System;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.Hosting;
 
 public static class FunctionHostExtensions
 {
     public static IHostBuilder ConfigureFunctionsWorkerStandard(
-        this IHostBuilder hostBuilder, bool useHostConfiguration = false)
+        this IHostBuilder hostBuilder,
+        bool useHostConfiguration = false,
+        Action<IFunctionsWorkerApplicationBuilder>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(hostBuilder);
 
-        var builder = hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureFunctionsWorkerDefaults(Configure);
-        if (useHostConfiguration is false)
+        var builder = hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureServices(InnerConfigureApplicationInsights);
+
+        if (useHostConfiguration)
         {
-            return builder;
+            builder = builder.ConfigureAppConfiguration(AddHostConfiguration);
         }
 
-        return builder.ConfigureAppConfiguration(AddHostConfiguration);
+        if (configure is not null)
+        {
+            builder = builder.ConfigureFunctionsWorkerDefaults(configure);
+        }
 
-        static void Configure(IFunctionsWorkerApplicationBuilder builder)
+        return builder;
+
+        static void InnerConfigureApplicationInsights(IServiceCollection services)
             =>
-            builder.AddApplicationInsights().AddApplicationInsightsLogger();
+            services.ConfigureFunctionsApplicationInsights();
 
         static void AddHostConfiguration(HostBuilderContext _, IConfigurationBuilder configurationBuilder)
             =>
             configurationBuilder.AddJsonFile("host.json");
-    }
-
-    public static IHostBuilder ConfigureFunctionsWorkerStandard(
-        this IHostBuilder hostBuilder,
-        Action<IFunctionsWorkerApplicationBuilder> configure)
-    {
-        ArgumentNullException.ThrowIfNull(hostBuilder);
-        ArgumentNullException.ThrowIfNull(configure);
-
-        return hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureFunctionsWorkerDefaults(Configure);
-
-        void Configure(IFunctionsWorkerApplicationBuilder builder)
-        {
-            configure.Invoke(builder);
-            builder.AddApplicationInsights().AddApplicationInsightsLogger();
-        }
     }
 }
