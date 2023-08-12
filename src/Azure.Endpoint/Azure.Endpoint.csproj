@@ -8,13 +8,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.1.0" />
-    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.7.5" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.14.0" />
+    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.3.0" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.8.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.15.0" />
   </ItemGroup>
 
 </Project>

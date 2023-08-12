@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace GarageGroup.Infra;
 
@@ -27,7 +28,8 @@ public static partial class HandlerFuncExtensions
         }
         catch (Exception exception)
         {
-            return exception.CreateDeserializerFailure();
+            return exception.ToFailure(
+                HandlerFailureCode.Persistent, "An unexpected error occured when the request body was being deserialized");
         }
     }
 
@@ -39,13 +41,23 @@ public static partial class HandlerFuncExtensions
         }
         catch (Exception exception)
         {
-            return exception.CreateDeserializerFailure();
+            return exception.ToFailure(
+                HandlerFailureCode.Persistent, "An unexpected error occured when the request body was being deserialized");
         }
     }
 
-    private static Failure<HandlerFailureCode> CreateDeserializerFailure(this Exception exception)
-        =>
-        new(HandlerFailureCode.Persistent, $"An unexpected error occured when the request body was being deserialized: '{exception.Message}'");
+    private static async ValueTask<Result<TOut, Failure<HandlerFailureCode>>> HandleOrFailureAsync<TIn, TOut>(
+        this IHandler<TIn, TOut> handler, TIn? input, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await handler.HandleAsync(input, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return ex.ToFailure(HandlerFailureCode.Transient, "An unexpected exception was thrown in the handler");
+        }
+    }
 
     private static ValueTask<Result<TOut, Failure<HandlerFailureCode>>> ForwardValueAsync<TIn, TOut>(
         this Result<TIn, Failure<HandlerFailureCode>> source,
@@ -59,44 +71,43 @@ public static partial class HandlerFuncExtensions
             nextAsync.Invoke(input, cancellationToken);
     }
 
+#if NET7_0_OR_GREATER
+    private static async Task<string> ReadAsStringAsync(this Stream stream, CancellationToken cancellationToken)
+#else
     private static async Task<string> ReadAsStringAsync(this Stream stream)
+#endif
     {
         using var streamReader = new StreamReader(stream, Encoding.UTF8);
+
+#if NET7_0_OR_GREATER
+        return await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false) ?? string.Empty;
+#else
         return await streamReader.ReadToEndAsync().ConfigureAwait(false) ?? string.Empty;
+#endif
     }
 
-    private static void TrackPersistentFailure(this FunctionContext context, string requestData, string message)
+    private static ILogger GetFunctionLogger(this FunctionContext context)
         =>
-        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(
-            "PersistentFailure",
-            new Dictionary<string, string>
-            {
-                ["function"] = context.FunctionDefinition.Name,
-                ["data"] = requestData,
-                ["message"] = message
-            });
+        context.GetLogger(context.FunctionDefinition.Name);
 
-    private static void TrackTransientFailure(this FunctionContext context, string requestData, string message)
-        =>
-        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(
-            "TransientFailure",
-            new Dictionary<string, string>
-            {
-                ["function"] = context.FunctionDefinition.Name,
-                ["data"] = requestData,
-                ["message"] = message
-            });
+    private static void TrackFailure(
+        this FunctionContext context, Failure<HandlerFailureCode> failure, string requestData)
+    {
+        var properties = new Dictionary<string, string>
+        {
+            ["function"] = context.FunctionDefinition.Name,
+            ["data"] = requestData,
+            ["message"] = failure.FailureMessage
+        };
 
-    private static void TrackException(this FunctionContext context, string requestData, Exception exception)
-        =>
-        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(
-            "TransientFailure",
-            new Dictionary<string, string>
-            {
-                ["function"] = context.FunctionDefinition.Name,
-                ["data"] = requestData,
-                ["message"] = exception.Message,
-                ["errorType"] = exception.GetType().FullName ?? string.Empty,
-                ["stackTrace"] = exception.StackTrace ?? string.Empty
-            });
+        if (failure.SourceException is not null)
+        {
+            properties["errorMessage"] = failure.SourceException.Message ?? string.Empty;
+            properties["errorType"] = failure.SourceException.GetType().FullName ?? string.Empty;
+            properties["stackTrace"] = failure.SourceException.StackTrace ?? string.Empty;
+        }
+
+        var eventName = failure.FailureCode is HandlerFailureCode.Transient ? "TransientFailure" : "PersistentFailure";
+        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(eventName, properties);
+    }
 }

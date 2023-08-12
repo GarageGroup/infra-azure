@@ -16,21 +16,25 @@ public static class FunctionHostExtensions
 
         var builder = hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureServices(InnerConfigureApplicationInsights);
 
-        if (useHostConfiguration)
-        {
-            builder = builder.ConfigureAppConfiguration(AddHostConfiguration);
-        }
-
         if (configure is not null)
         {
             builder = builder.ConfigureFunctionsWorkerDefaults(configure);
+        }
+        else
+        {
+            builder = builder.ConfigureFunctionsWorkerDefaults();
+        }
+
+        if (useHostConfiguration)
+        {
+            builder = builder.ConfigureAppConfiguration(AddHostConfiguration);
         }
 
         return builder;
 
         static void InnerConfigureApplicationInsights(IServiceCollection services)
             =>
-            services.ConfigureFunctionsApplicationInsights();
+            services.AddApplicationInsightsTelemetryWorkerService().ConfigureFunctionsApplicationInsights();
 
         static void AddHostConfiguration(HostBuilderContext _, IConfigurationBuilder configurationBuilder)
             =>
