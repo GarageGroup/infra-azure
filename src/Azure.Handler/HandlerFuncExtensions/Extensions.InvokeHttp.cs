@@ -4,7 +4,6 @@ using System.Net.Mime;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
@@ -32,57 +31,37 @@ partial class HandlerFuncExtensions
         where THandler : IHandler<TIn, TOut>
     {
         var context = request.FunctionContext;
+        using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
 
-        using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(request.FunctionContext.CancellationToken, cancellationToken);
+#if NET7_0_OR_GREATER
+        var json = await request.Body.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+#else
         var json = await request.Body.ReadAsStringAsync().ConfigureAwait(false);
+#endif
 
-        try
-        {
-            var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleAsync, tokenSource.Token).ConfigureAwait(false);
-            return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
-        }
-        catch (Exception ex)
-        {
-            InnerLogException(request.FunctionContext, json, ex);
-            throw;
-        }
+        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
+        return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
 
         HttpResponseData InnerCreateSuccessResponse(TOut @out)
             =>
             request.CreateSuccessResponse(@out);
 
         HttpResponseData InnerCreateFailureResponse(Failure<HandlerFailureCode> failure)
-            =>
-            failure.FailureCode switch
-            {
-                HandlerFailureCode.Transient    => InnerCreateTransientFailureResponse(failure),
-                _                               => InnerCreatePersistentFailureResponse(failure)
-            };
-
-        HttpResponseData InnerCreatePersistentFailureResponse(Failure<HandlerFailureCode> failure)
         {
-            var message = failure.FailureMessage;
+            var code = failure.FailureCode is HandlerFailureCode.Transient ? "transient" : "persistent";
 
-            context.GetLogger(context.FunctionDefinition.Name).LogError("An unexpected persistent HTTP Function error occured: {error}", message);
-            context.TrackTransientFailure(json, message);
+            context.GetFunctionLogger().LogError(
+                failure.SourceException,
+                "An unexpected {code} HTTP Function error occured: {error}", code, failure.FailureMessage);
+
+            context.TrackFailure(failure, json);
+
+            if (failure.FailureCode is HandlerFailureCode.Transient)
+            {
+                return request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
 
             return request.CreatePersistentFailureResponse(failure);
-        }
-
-        HttpResponseData InnerCreateTransientFailureResponse(Failure<HandlerFailureCode> failure)
-        {
-            var message = failure.FailureMessage;
-
-            context.GetLogger(context.FunctionDefinition.Name).LogError("An unexpected transient HTTP Function error occured: {error}", message);
-            context.TrackTransientFailure(json, message);
-
-            return request.CreateResponse(HttpStatusCode.InternalServerError);
-        }
-
-        static void InnerLogException(FunctionContext context, string requestData, Exception exception)
-        {
-            context.GetLogger(context.FunctionDefinition.Name).LogError(exception, "An unexpected HTTP Function exception was thrown");
-            context.TrackException(requestData.ToString(), exception);
         }
     }
 

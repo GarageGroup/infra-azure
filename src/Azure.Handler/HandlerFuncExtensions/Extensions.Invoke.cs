@@ -29,44 +29,19 @@ partial class HandlerFuncExtensions
         where THandler : IHandler<TIn, TOut>
     {
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
+        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
 
-        try
-        {
-            var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleAsync, tokenSource.Token).ConfigureAwait(false);
-            _ = result.Fold(Unit.From, OnFailure);
-        }
-        catch (Exception ex)
-        {
-            LogException(context, json, ex);
-            throw;
-        }
+        _ = result.Fold(Unit.From, OnFailure);
 
         Unit OnFailure(Failure<HandlerFailureCode> failure)
-            =>
-            failure.FailureCode switch
-            {
-                HandlerFailureCode.Transient    => Unit.Invoke(OnTransientFailure, context, json, failure.FailureMessage),
-                _                               => Unit.Invoke(OnPersistentFailure, context, json, failure.FailureMessage)
-            };
-
-        static void OnPersistentFailure(FunctionContext context, JsonElement jsonData, string message)
         {
-            context.GetLogger(context.FunctionDefinition.Name).LogError("Data will be removed: {data}. Error: {error}", jsonData, message);
-            context.TrackPersistentFailure(jsonData.ToString(), message);
-        }
+            var action = failure.FailureCode is HandlerFailureCode.Transient ? "retried" : "removed";
 
-        static void OnTransientFailure(FunctionContext context, JsonElement jsonData, string message)
-        {
-            context.GetLogger(context.FunctionDefinition.Name).LogError("Data will be retried: {data}. Error: {error}", jsonData, message);
-            context.TrackTransientFailure(jsonData.ToString(), message);
+            context.GetFunctionLogger().LogError(
+                failure.SourceException,
+                "Data will be {action}: {data}. Error: {error}", action, json, failure.FailureMessage);
 
-            throw new InvalidOperationException(message);
-        }
-
-        static void LogException(FunctionContext context, JsonElement jsonData, Exception exception)
-        {
-            context.GetLogger(context.FunctionDefinition.Name).LogError(exception, "Data will be retried: {data} due to exception", jsonData);
-            context.TrackException(jsonData.ToString(), exception);
+            return Unit.Invoke(context.TrackFailure, failure, json.ToString());
         }
     }
 }
