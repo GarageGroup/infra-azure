@@ -35,8 +35,8 @@ partial class HandlerFunctionBuilder
         =>
         resolver.FunctionData switch
         {
-            HttpFunctionData    => "Task<HttpResponseData>",
-            _                   => "Task"
+            HttpFunctionData => "Task<HttpResponseData>",
+            _ => "Task"
         };
 
     private static SourceBuilder AppendAzureFunctionBodyArguments(this SourceBuilder builder, HandlerResolverMetadata resolver)
@@ -122,9 +122,24 @@ partial class HandlerFunctionBuilder
 
     private static string BuildServiceBusTriggerAttributeSourceCode(this ServiceBusFunctionData functionData)
     {
-        var queueNameSourceCode = functionData.QueueName.AsStringSourceCode();
-        var builder = new StringBuilder("[ServiceBusTrigger(").Append(queueNameSourceCode);
+        var serviceBusAttribute = "[ServiceBusTrigger(";
+        var builder = new StringBuilder(serviceBusAttribute);
 
+        if (string.IsNullOrEmpty(functionData.QueueName) is false)
+        {
+            var queueNameSourceCode = functionData.QueueName.AsStringSourceCode();
+            builder = builder.Append(queueNameSourceCode);
+        }
+        else
+        {
+            builder = builder
+                .Append(
+                    functionData.TopicName.AsStringSourceCode())
+                .Append(
+                    ", ")
+                .Append(
+                    functionData.SubscriptionName.AsStringSourceCode());
+        }
         if (string.IsNullOrEmpty(functionData.Connection) is false)
         {
             builder = builder.Append(", Connection = ").Append(functionData.Connection.AsStringSourceCode());

@@ -121,9 +121,7 @@ internal static partial class SourceGeneratorExtensions
 
         if (functionAttribute.AttributeClass?.IsType(DefaultNamespace, "ServiceBusFunctionAttribute") is true)
         {
-            return new ServiceBusFunctionData(
-                queueName: functionAttribute.GetAttributeValue(1)?.ToString() ?? string.Empty,
-                connection: functionAttribute.GetAttributeValue(2)?.ToString() ?? string.Empty);
+            return functionAttribute.GetServiceBusFunctionData();
         }
 
         throw new InvalidOperationException($"An unexpected HandlerFunctionAttribute type: '{functionAttribute.AttributeClass?.Name}'");
@@ -153,4 +151,18 @@ internal static partial class SourceGeneratorExtensions
 
         return level;
     }
+
+    private static ServiceBusFunctionData GetServiceBusFunctionData(this AttributeData data)
+        =>
+        data.ConstructorArguments.Length switch
+        {
+            QueueServiceBusConstructorArgumentCount => new ServiceBusFunctionData(
+                queueName: data.GetAttributeValue(1)?.ToString() ?? string.Empty,
+                connection: data.GetAttributeValue(2)?.ToString() ?? string.Empty),
+            SubscriptionServiceBusConstructorArgumentCount => new ServiceBusFunctionData(
+                topicName: data.GetAttributeValue(1)?.ToString() ?? string.Empty,
+                subscriptionName: data.GetAttributeValue(2)?.ToString() ?? string.Empty,
+                connection: data.GetAttributeValue(3)?.ToString() ?? string.Empty),
+            _ => throw new ArgumentOutOfRangeException($"There is no ServiceBusFunctionData that takes {data.ConstructorArguments.Length} arguments"),
+        };
 }
