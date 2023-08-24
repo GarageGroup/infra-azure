@@ -122,8 +122,7 @@ partial class HandlerFunctionBuilder
 
     private static string BuildServiceBusTriggerAttributeSourceCode(this ServiceBusFunctionData functionData)
     {
-        var serviceBusAttribute = "[ServiceBusTrigger(";
-        var builder = new StringBuilder(serviceBusAttribute);
+        var builder = new StringBuilder("[ServiceBusTrigger(");
 
         if (string.IsNullOrEmpty(functionData.QueueName) is false)
         {
