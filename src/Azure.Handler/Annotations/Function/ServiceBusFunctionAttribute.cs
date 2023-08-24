@@ -11,7 +11,18 @@ public sealed class ServiceBusFunctionAttribute : HandlerFunctionAttribute
         Connection = connection ?? string.Empty;
     }
 
-    public string QueueName { get; }
+    public ServiceBusFunctionAttribute(string name, string topicName, string subscriptionName, string connection) : base(name)
+    {
+        TopicName = topicName ?? string.Empty;
+        SubscriptionName = subscriptionName ?? string.Empty;
+        Connection = connection ?? string.Empty;
+    }
+
+    public string? QueueName { get; }
+
+    public string? TopicName { get; }
+
+    public string? SubscriptionName { get; }
 
     public string Connection { get; }
 }

@@ -8,6 +8,10 @@ internal static partial class SourceGeneratorExtensions
 {
     private const string DefaultNamespace = "GarageGroup.Infra";
 
+    private const int QueueServiceBusConstructorArgumentCount = 3;
+
+    private const int SubscriptionServiceBusConstructorArgumentCount = 4;
+
     private static IEnumerable<T> NotNull<T>(this IEnumerable<T?> source)
     {
         foreach (var item in source)
