@@ -157,12 +157,12 @@ internal static partial class SourceGeneratorExtensions
         data.ConstructorArguments.Length switch
         {
             QueueServiceBusConstructorArgumentCount => new ServiceBusFunctionData(
-                queueName: data.GetAttributeValue(1)?.ToString() ?? string.Empty,
-                connection: data.GetAttributeValue(2)?.ToString() ?? string.Empty),
+                queueName: data.GetAttributeValue(1)?.ToString(),
+                connection: data.GetAttributeValue(2)?.ToString()),
             SubscriptionServiceBusConstructorArgumentCount => new ServiceBusFunctionData(
-                topicName: data.GetAttributeValue(1)?.ToString() ?? string.Empty,
-                subscriptionName: data.GetAttributeValue(2)?.ToString() ?? string.Empty,
-                connection: data.GetAttributeValue(3)?.ToString() ?? string.Empty),
+                topicName: data.GetAttributeValue(1)?.ToString(),
+                subscriptionName: data.GetAttributeValue(2)?.ToString(),
+                connection: data.GetAttributeValue(3)?.ToString()),
             _ => throw new ArgumentOutOfRangeException($"There is no ServiceBusFunctionData that takes {data.ConstructorArguments.Length} arguments"),
         };
 }
