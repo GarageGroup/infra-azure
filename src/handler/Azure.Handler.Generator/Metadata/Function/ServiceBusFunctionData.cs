@@ -2,13 +2,24 @@ namespace GarageGroup.Infra;
 
 internal sealed record class ServiceBusFunctionData : BaseFunctionData
 {
-    public ServiceBusFunctionData(string queueName, string? connection)
+    public ServiceBusFunctionData(string? queueName, string? connection)
     {
-        QueueName = queueName ?? string.Empty;
+        QueueName = queueName;
         Connection = connection;
     }
 
-    public string QueueName { get; }
+    public ServiceBusFunctionData(string? topicName, string? subscriptionName, string? connection)
+    {
+        SubscriptionName = subscriptionName;
+        TopicName = topicName;
+        Connection = connection;
+    }
+
+    public string? QueueName { get; }
+
+    public string? TopicName { get; }
+
+    public string? SubscriptionName { get; }
 
     public string? Connection { get; }
 }
