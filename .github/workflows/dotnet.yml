@@ -34,112 +34,123 @@ jobs:
     # Azure.Hosting
 
     - name: Restore Azure.Hosting
-      run: dotnet restore ./src/*/Azure.Hosting.csproj
+      run: dotnet restore ./src/*/*/Azure.Hosting.csproj
 
     - name: Build Azure.Hosting
-      run: dotnet build ./src/*/Azure.Hosting.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Hosting.csproj --no-restore  -c Release
 
     - name: Pack Azure.Hosting
-      run: dotnet pack ./src/*/Azure.Hosting.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Hosting.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.Swagger
 
     - name: Restore Azure.Swagger
-      run: dotnet restore ./src/*/Azure.Swagger.csproj
+      run: dotnet restore ./src/*/*/Azure.Swagger.csproj
 
     - name: Build Azure.Swagger
-      run: dotnet build ./src/*/Azure.Swagger.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Swagger.csproj --no-restore  -c Release
 
     - name: Pack Azure.Swagger
-      run: dotnet pack ./src/*/Azure.Swagger.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Swagger.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.Endpoint
 
     - name: Restore Azure.Endpoint
-      run: dotnet restore ./src/*/Azure.Endpoint.csproj
+      run: dotnet restore ./src/*/*/Azure.Endpoint.csproj
 
     - name: Build Azure.Endpoint
-      run: dotnet build ./src/*/Azure.Endpoint.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Endpoint.csproj --no-restore  -c Release
 
     - name: Pack Azure.Endpoint
-      run: dotnet pack ./src/*/Azure.Endpoint.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Endpoint.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.Endpoint.Generator
 
     - name: Restore Azure.Endpoint.Generator
-      run: dotnet restore ./src/*/Azure.Endpoint.Generator.csproj
+      run: dotnet restore ./src/*/*/Azure.Endpoint.Generator.csproj
 
     - name: Build Azure.Endpoint.Generator
-      run: dotnet build ./src/*/Azure.Endpoint.Generator.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Endpoint.Generator.csproj --no-restore  -c Release
 
     - name: Pack Azure.Endpoint.Generator
-      run: dotnet pack ./src/*/Azure.Endpoint.Generator.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Endpoint.Generator.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.Handler
 
     - name: Restore Azure.Handler
-      run: dotnet restore ./src/*/Azure.Handler.csproj
+      run: dotnet restore ./src/*/*/Azure.Handler.csproj
 
     - name: Build Azure.Handler
-      run: dotnet build ./src/*/Azure.Handler.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Handler.csproj --no-restore  -c Release
 
     - name: Pack Azure.Handler
-      run: dotnet pack ./src/*/Azure.Handler.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Handler.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.Handler.Generator
 
     - name: Restore Azure.Handler.Generator
-      run: dotnet restore ./src/*/Azure.Handler.Generator.csproj
+      run: dotnet restore ./src/*/*/Azure.Handler.Generator.csproj
 
     - name: Build Azure.Handler.Generator
-      run: dotnet build ./src/*/Azure.Handler.Generator.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.Handler.Generator.csproj --no-restore  -c Release
 
     - name: Pack Azure.Handler.Generator
-      run: dotnet pack ./src/*/Azure.Handler.Generator.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.Handler.Generator.csproj --no-restore -o ~/nuget  -c Release
+
+    # Azure.DurableTask
+
+    - name: Restore Azure.DurableTask
+      run: dotnet restore ./src/*/*/Azure.DurableTask.csproj
+
+    - name: Build Azure.DurableTask
+      run: dotnet build ./src/*/*/Azure.DurableTask.csproj --no-restore  -c Release
+
+    - name: Pack Azure.DurableTask
+      run: dotnet pack ./src/*/*/Azure.DurableTask.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.KeepWarm
 
     - name: Restore Azure.KeepWarm
-      run: dotnet restore ./src/*/Azure.KeepWarm.csproj
+      run: dotnet restore ./src/*/*/Azure.KeepWarm.csproj
 
     - name: Build Azure.KeepWarm
-      run: dotnet build ./src/*/Azure.KeepWarm.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.KeepWarm.csproj --no-restore  -c Release
 
     - name: Pack Azure.KeepWarm
-      run: dotnet pack ./src/*/Azure.KeepWarm.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.KeepWarm.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.KeepWarm.Generator
 
     - name: Restore Azure.KeepWarm.Generator
-      run: dotnet restore ./src/*/Azure.KeepWarm.Generator.csproj
+      run: dotnet restore ./src/*/*/Azure.KeepWarm.Generator.csproj
 
     - name: Build Azure.KeepWarm.Generator
-      run: dotnet build ./src/*/Azure.KeepWarm.Generator.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.KeepWarm.Generator.csproj --no-restore  -c Release
 
     - name: Pack Azure.KeepWarm.Generator
-      run: dotnet pack ./src/*/Azure.KeepWarm.Generator.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.KeepWarm.Generator.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.HealthCheck
 
     - name: Restore Azure.HealthCheck
-      run: dotnet restore ./src/*/Azure.HealthCheck.csproj
+      run: dotnet restore ./src/*/*/Azure.HealthCheck.csproj
 
     - name: Build Azure.HealthCheck
-      run: dotnet build ./src/*/Azure.HealthCheck.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.HealthCheck.csproj --no-restore  -c Release
 
     - name: Pack Azure.HealthCheck
-      run: dotnet pack ./src/*/Azure.HealthCheck.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.HealthCheck.csproj --no-restore -o ~/nuget  -c Release
 
     # Azure.HealthCheck.Generator
 
     - name: Restore Azure.HealthCheck.Generator
-      run: dotnet restore ./src/*/Azure.HealthCheck.Generator.csproj
+      run: dotnet restore ./src/*/*/Azure.HealthCheck.Generator.csproj
 
     - name: Build Azure.HealthCheck.Generator
-      run: dotnet build ./src/*/Azure.HealthCheck.Generator.csproj --no-restore  -c Release
+      run: dotnet build ./src/*/*/Azure.HealthCheck.Generator.csproj --no-restore  -c Release
 
     - name: Pack Azure.HealthCheck.Generator
-      run: dotnet pack ./src/*/Azure.HealthCheck.Generator.csproj --no-restore -o ~/nuget  -c Release
+      run: dotnet pack ./src/*/*/Azure.HealthCheck.Generator.csproj --no-restore -o ~/nuget  -c Release
 
     # Push
 

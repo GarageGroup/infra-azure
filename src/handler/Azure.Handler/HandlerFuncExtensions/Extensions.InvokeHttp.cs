@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
@@ -40,11 +41,7 @@ partial class HandlerFuncExtensions
 #endif
 
         var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
-        return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
-
-        HttpResponseData InnerCreateSuccessResponse(TOut @out)
-            =>
-            request.CreateSuccessResponse(@out);
+        return result.Fold(request.CreateSuccessResponse, InnerCreateFailureResponse);
 
         HttpResponseData InnerCreateFailureResponse(Failure<HandlerFailureCode> failure)
         {
@@ -54,7 +51,7 @@ partial class HandlerFuncExtensions
                 failure.SourceException,
                 "An unexpected {code} HTTP Function error occured: {error}", code, failure.FailureMessage);
 
-            context.TrackFailure(failure, json);
+            context.TrackHandlerFailure(failure, json);
 
             if (failure.FailureCode is HandlerFailureCode.Transient)
             {
@@ -65,15 +62,22 @@ partial class HandlerFuncExtensions
         }
     }
 
-    private static HttpResponseData CreateSuccessResponse<TOut>(this HttpRequestData request, TOut success)
+    private static HttpResponseData CreateSuccessResponse<T>(this HttpRequestData httpRequest, T success)
     {
+        Debug.Assert(httpRequest is not null);
+
+        if (success is IHttpResponseProvider httpResponseProvider)
+        {
+            return httpResponseProvider.GetHttpResponse(httpRequest);
+        }
+
         if (success is Unit)
         {
-            return request.CreateResponse(HttpStatusCode.NoContent);
+            return httpRequest.CreateResponse(HttpStatusCode.NoContent);
         }
 
         var json = JsonSerializer.Serialize(success, SerializerOptions);
-        var response = request.CreateResponse(HttpStatusCode.OK);
+        var response = httpRequest.CreateResponse(HttpStatusCode.OK);
 
         response.WriteString(json);
         response.Headers.TryAddWithoutValidation("Content-Type", MediaTypeNames.Application.Json);
