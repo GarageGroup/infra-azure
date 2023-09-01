@@ -1,16 +1,48 @@
 using System;
+using Microsoft.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
-public static class DurableTaskDepepndency
+public static class OrchestrationActivityApiDependency
 {
-    private const int BackoffCoefficientDefault = -1;
+    private const int BackoffCoefficientDefault = 1;
 
-    private static OrchestrationActivityApiOption ResolveActivityApiOption(IServiceProvider serviceProvider, string sectionName)
+    public static Dependency<IOrchestrationActivityApi> UseOrchestrationActivityApi(
+        this Dependency<TaskOrchestrationContext> dependency, string sectionName = "OrchestrationActivity")
+    {
+        ArgumentNullException.ThrowIfNull(dependency);
+        return dependency.With(InnerResolveOption).Fold<IOrchestrationActivityApi>(ResolveApi);
+
+        OrchestrationActivityApiOption? InnerResolveOption(IServiceProvider serviceProvider)
+            =>
+            serviceProvider.ResolveActivityApiOption(sectionName.OrEmpty());
+    }
+
+    public static Dependency<IOrchestrationActivityApi> UseOrchestrationActivityApi(
+        this Dependency<TaskOrchestrationContext, OrchestrationActivityApiOption> dependency)
+    {
+        ArgumentNullException.ThrowIfNull(dependency);
+        return dependency.Fold<IOrchestrationActivityApi>(ResolveApi);
+    }
+
+    private static OrchestrationActivityApi ResolveApi(
+        TaskOrchestrationContext context, OrchestrationActivityApiOption? option)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return new(context, option);
+    }
+
+    private static OrchestrationActivityApiOption? ResolveActivityApiOption(
+        this IServiceProvider serviceProvider, string sectionName)
     {
         var section = serviceProvider.GetRequiredService<IConfiguration>().GetSection(sectionName);
+        if (section.Exists() is false)
+        {
+            return null;
+        }
 
         return new(
             maxNumberOfAttempts: section.GetInt32Value("MaxNumberOfAttempts"),

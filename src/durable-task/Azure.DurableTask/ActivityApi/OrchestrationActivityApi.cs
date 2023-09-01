@@ -1,3 +1,4 @@
+using System;
 using Microsoft.DurableTask;
 
 namespace GarageGroup.Infra;
@@ -8,7 +9,7 @@ internal sealed partial class OrchestrationActivityApi : IOrchestrationActivityA
 
     private readonly OrchestrationActivityApiOption? option;
 
-    public OrchestrationActivityApi(TaskOrchestrationContext context, OrchestrationActivityApiOption? option)
+    internal OrchestrationActivityApi(TaskOrchestrationContext context, OrchestrationActivityApiOption? option)
     {
         this.context = context;
         this.option = option;
@@ -29,4 +30,8 @@ internal sealed partial class OrchestrationActivityApi : IOrchestrationActivityA
                 maxRetryInterval: option.MaxRetryInterval,
                 retryTimeout: option.RetryTimeout));
     }
+
+    private static Failure<HandlerFailureCode> CreateTransientHandlerFailure(Exception exception, string activityName)
+        =>
+        exception.ToFailure(HandlerFailureCode.Transient, $"An unexpected exception was thrown when trying to call a task '{activityName}'");
 }

@@ -24,24 +24,12 @@ partial class OrchestrationActivityApi
     {
         try
         {
-            var name = input.ActivityName;
-            var value = input.Value;
-            var options = GetTaskOptions();
-
-            var result = await context.CallActivityAsync<OrchestrationActivityResult>(name, value, options);
-
-            if (result.IsSuccess)
-            {
-                return Result.Success<Unit>(default);
-            }
-
-            return Failure.Create(HandlerFailureCode.Persistent, result.FailureMessage);
+            var result = await context.CallActivityAsync<HandlerResultJson<Unit>>(input.ActivityName, input.Value, GetTaskOptions());
+            return result.ToResult();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return ex.ToFailure(
-                HandlerFailureCode.Transient,
-                $"An unexpected exception was thrown when trying to call a task '{input.ActivityName}'");
+            return CreateTransientHandlerFailure(ex, input.ActivityName);
         }
     }
 }

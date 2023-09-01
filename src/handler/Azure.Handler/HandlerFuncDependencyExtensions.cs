@@ -10,7 +10,7 @@ namespace GarageGroup.Infra;
 
 public static class HandlerFuncDependencyExtensions
 {
-    public static Task RunAzureFunctionAsync<THandler, TIn, TOut>(
+    public static Task<HandlerResultJson<TOut>> RunAzureFunctionAsync<THandler, TIn, TOut>(
         this Dependency<THandler> dependency, JsonElement jsonData, FunctionContext context, CancellationToken cancellationToken)
         where THandler : IHandler<TIn, TOut>
     {
@@ -19,7 +19,7 @@ public static class HandlerFuncDependencyExtensions
 
         if (cancellationToken.IsCancellationRequested)
         {
-            return Task.FromCanceled(cancellationToken);
+            return Task.FromCanceled<HandlerResultJson<TOut>>(cancellationToken);
         }
 
         return dependency.Resolve(context.InstanceServices).InternalInvokeAzureFunctionAsync<THandler, TIn, TOut>(jsonData, context, cancellationToken);

@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace GarageGroup.Infra;
@@ -53,9 +50,9 @@ public static partial class HandlerFuncExtensions
         {
             return await handler.HandleAsync(input, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            return ex.ToFailure(HandlerFailureCode.Transient, "An unexpected exception was thrown in the handler");
+            return exception.ToFailure(HandlerFailureCode.Transient, "An unexpected exception was thrown in the handler");
         }
     }
 
@@ -89,25 +86,4 @@ public static partial class HandlerFuncExtensions
     private static ILogger GetFunctionLogger(this FunctionContext context)
         =>
         context.GetLogger(context.FunctionDefinition.Name);
-
-    private static void TrackFailure(
-        this FunctionContext context, Failure<HandlerFailureCode> failure, string requestData)
-    {
-        var properties = new Dictionary<string, string>
-        {
-            ["function"] = context.FunctionDefinition.Name,
-            ["data"] = requestData,
-            ["message"] = failure.FailureMessage
-        };
-
-        if (failure.SourceException is not null)
-        {
-            properties["errorMessage"] = failure.SourceException.Message ?? string.Empty;
-            properties["errorType"] = failure.SourceException.GetType().FullName ?? string.Empty;
-            properties["stackTrace"] = failure.SourceException.StackTrace ?? string.Empty;
-        }
-
-        var eventName = failure.FailureCode is HandlerFailureCode.Transient ? "TransientFailure" : "PersistentFailure";
-        context.InstanceServices.GetService<TelemetryClient>()?.TrackEvent(eventName, properties);
-    }
 }

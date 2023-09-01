@@ -32,10 +32,10 @@ partial class OrchestrationInstanceApi
             };
 
             var instanceId = await durableTaskClient.ScheduleNewOrchestrationInstanceAsync(
-                input.OrchestratorName, option, cancellationToken);
+                input.OrchestratorName, input.Value, option, cancellationToken);
 
             return new OrchestrationInstanceScheduleOut(
-                instanceId: instanceId.OrEmpty());
+                instanceId: GetInstanceId(instanceId));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
