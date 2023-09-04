@@ -108,6 +108,17 @@ jobs:
     - name: Pack Azure.DurableTask
       run: dotnet pack ./src/*/*/Azure.DurableTask.csproj --no-restore -o ~/nuget  -c Release
 
+    # Azure.DurableTask.Generator
+
+    - name: Restore Azure.DurableTask.Generator
+      run: dotnet restore ./src/*/*/Azure.DurableTask.Generator.csproj
+
+    - name: Build Azure.DurableTask.Generator
+      run: dotnet build ./src/*/*/Azure.DurableTask.Generator.csproj --no-restore  -c Release
+
+    - name: Pack Azure.DurableTask.Generator
+      run: dotnet pack ./src/*/*/Azure.DurableTask.Generator.csproj --no-restore -o ~/nuget  -c Release
+
     # Azure.KeepWarm
 
     - name: Restore Azure.KeepWarm
