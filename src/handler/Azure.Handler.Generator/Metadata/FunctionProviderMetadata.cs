@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
 
-internal sealed record class FunctionProviderMetadata
+public sealed record class FunctionProviderMetadata
 {
     internal FunctionProviderMetadata(
         string @namespace,

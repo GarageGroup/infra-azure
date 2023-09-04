@@ -1,6 +1,6 @@
 namespace GarageGroup.Infra;
 
-internal sealed record class HandlerResolverMetadata
+public sealed record class HandlerResolverMetadata
 {
     public HandlerResolverMetadata(
         DisplayedTypeData handlerType,
@@ -10,7 +10,7 @@ internal sealed record class HandlerResolverMetadata
         string functionMethodName,
         string functionName,
         string? jsonRootPath,
-        BaseFunctionData functionData)
+        HandlerFunctionMetadata functionSpecificData)
     {
         HandlerType = handlerType;
         InputType = inputType;
@@ -19,7 +19,7 @@ internal sealed record class HandlerResolverMetadata
         FunctionMethodName = functionMethodName ?? string.Empty;
         FunctionName = functionName ?? string.Empty;
         JsonRootPath = jsonRootPath;
-        FunctionData = functionData;
+        FunctionSpecificData = functionSpecificData;
     }
 
     public DisplayedTypeData HandlerType { get; }
@@ -36,5 +36,5 @@ internal sealed record class HandlerResolverMetadata
 
     public string? JsonRootPath { get; }
 
-    public BaseFunctionData FunctionData { get; }
+    public HandlerFunctionMetadata FunctionSpecificData { get; }
 }

@@ -8,7 +8,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask</AssemblyName>
-    <Version>0.0.1</Version>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -13,16 +13,16 @@ partial class KeepWarmFunctionBuilder
             $"public static class {metadata.TypeName}")
         .BeginCodeBlock()
         .AppendCodeLine(
-            $"[Function({metadata.FunctionName.AsStringSourceCode()})]",
+            $"[Function({metadata.FunctionName.AsStringSourceCodeOr()})]",
             $"public static void Run({metadata.BuildTimerTriggerAttributeSourceCode()} TimerInfo timerInfo, FunctionContext context)")
         .BeginLambda()
         .AppendCodeLine(
-            $"context?.GetLogger({metadata.FunctionName.AsStringSourceCode()}).LogTimerInfo(timerInfo);")
+            $"context?.GetLogger({metadata.FunctionName.AsStringSourceCodeOr()}).LogTimerInfo(timerInfo);")
         .EndLambda()
         .EndCodeBlock()
         .Build();
 
     private static string BuildTimerTriggerAttributeSourceCode(this KeepWarmMetadata metadata)
         =>
-        $"[TimerTrigger({metadata.FunctionSchedule.AsStringSourceCode()})]";
+        $"[TimerTrigger({metadata.FunctionSchedule.AsStringSourceCodeOr()})]";
 }

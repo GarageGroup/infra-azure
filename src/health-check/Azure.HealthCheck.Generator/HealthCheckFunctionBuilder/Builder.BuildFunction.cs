@@ -16,7 +16,7 @@ partial class HealthCheckFunctionBuilder
             $"public static class {metadata.TypeName}")
         .BeginCodeBlock()
         .AppendCodeLine(
-            $"[Function({metadata.FunctionName.AsStringSourceCode()})]",
+            $"[Function({metadata.FunctionName.AsStringSourceCodeOr()})]",
             $"public static HttpResponseData Run({metadata.BuildHttpTriggerAttributeSourceCode()} HttpRequestData request)")
         .BeginLambda()
         .AppendCodeLine(
@@ -32,7 +32,7 @@ partial class HealthCheckFunctionBuilder
 
         if (string.IsNullOrEmpty(resolver.FunctionRoute) is false)
         {
-            builder = builder.Append(", Route = ").Append(resolver.FunctionRoute.AsStringSourceCode());
+            builder = builder.Append(", Route = ").Append(resolver.FunctionRoute.AsStringSourceCodeOr());
         }
 
         return builder.Append(")]").ToString();

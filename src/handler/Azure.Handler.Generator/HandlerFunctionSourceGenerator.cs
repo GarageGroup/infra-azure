@@ -1,27 +1,23 @@
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
 [Generator]
-internal sealed class HandlerFunctionSourceGenerator : ISourceGenerator
+public sealed class HandlerFunctionSourceGenerator : HandlerFunctionSourceGeneratorBase
 {
-    public void Execute(GeneratorExecutionContext context)
-    {
-        foreach (var providerType in context.GetFunctionProviderTypes())
+    private static readonly IReadOnlyList<IFunctionDataProvider> DataProviders;
+
+    static HandlerFunctionSourceGenerator()
+        =>
+        DataProviders = new IFunctionDataProvider[]
         {
-            var constructorSourceCode = providerType.BuildConstructorSourceCode();
-            context.AddSource($"{providerType.TypeName}.g.cs", constructorSourceCode);
+            new HttpFunctionDataProvider(),
+            new ServiceBusFunctionDataProvider(),
+            new EventGridFunctionDataProvider()
+        };
 
-            foreach (var resolverType in providerType.ResolverTypes)
-            {
-                var functionSourceCode = providerType.BuildFunctionSourceCode(resolverType);
-                context.AddSource($"{providerType.TypeName}.{resolverType.FunctionMethodName}.g.cs", functionSourceCode);
-            }
-        }
-    }
-
-    public void Initialize(GeneratorInitializationContext context)
-    {
-        // No initialization required for this one
-    }
+    protected override HandlerFunctionProvider GetFunctionProvider()
+        =>
+        new(DataProviders, "HandlerFunction");
 }
