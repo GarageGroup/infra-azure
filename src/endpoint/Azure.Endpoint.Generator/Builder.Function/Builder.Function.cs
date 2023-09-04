@@ -18,7 +18,7 @@ partial class FunctionBuilder
             $"partial class {provider.TypeName}")
         .BeginCodeBlock()
         .AppendCodeLine(
-            $"[Function({resolver.FunctionName.AsStringSourceCode(StringHelper.EmptyStringConstantSourceCode)})]",
+            $"[Function({resolver.FunctionName.AsStringSourceCodeOr()})]",
             $"public static Task<HttpResponseData> {resolver.FunctionMethodName}(")
         .BeginArguments()
         .AppendCodeLine(
@@ -45,12 +45,12 @@ partial class FunctionBuilder
                 continue;
             }
 
-            builder.Append(", ").Append(method.AsStringSourceCode());
+            builder.Append(", ").Append(method.AsStringSourceCodeOrStringEmpty());
         }
 
         if (string.IsNullOrEmpty(resolver.HttpRoute) is false)
         {
-            builder = builder.Append(", Route = ").Append(resolver.HttpRoute.AsStringSourceCode());
+            builder = builder.Append(", Route = ").Append(resolver.HttpRoute.AsStringSourceCodeOrStringEmpty());
         }
 
         return builder.Append(")]").ToString();
