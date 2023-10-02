@@ -17,6 +17,8 @@ partial class FunctionBuilder
         .AppendCodeLine(
             $"partial class {provider.TypeName}")
         .BeginCodeBlock()
+        .AppendObsoleteAttributeIfNecessary(
+            resolver)
         .AppendCodeLine(
             $"[Function({resolver.FunctionName.AsStringSourceCodeOr()})]",
             $"public static Task<HttpResponseData> {resolver.FunctionMethodName}(")
@@ -28,10 +30,40 @@ partial class FunctionBuilder
         .EndArguments()
         .BeginLambda()
         .AppendCodeLine(
-            $"{resolver.DependencyFieldName}.RunAzureFunctionAsync(request, cancellationToken);")
+            $"{provider.ProviderType.DisplayedTypeName}.{resolver.ResolverMethodName}().RunAzureFunctionAsync(request, cancellationToken);")
         .EndLambda()
         .EndCodeBlock()
         .Build();
+
+    private static SourceBuilder AppendObsoleteAttributeIfNecessary(this SourceBuilder builder, EndpointResolverMetadata type)
+    {
+        if (type.ObsoleteData is null)
+        {
+            return builder;
+        }
+
+        var attributeBuilder = new StringBuilder("[Obsolete(").Append(type.ObsoleteData.Message.AsStringSourceCodeOr("null"));
+
+        attributeBuilder = type.ObsoleteData.IsError switch
+        {
+            true => attributeBuilder.Append(", true"),
+            false => attributeBuilder.Append(", false"),
+            _ => attributeBuilder
+        };
+
+        if (string.IsNullOrEmpty(type.ObsoleteData.DiagnosticId) is false)
+        {
+            attributeBuilder = attributeBuilder.Append(", DiagnosticId = ").Append(type.ObsoleteData.DiagnosticId.AsStringSourceCodeOr());
+        }
+
+        if (string.IsNullOrEmpty(type.ObsoleteData.UrlFormat) is false)
+        {
+            attributeBuilder = attributeBuilder.Append(", UrlFormat = ").Append(type.ObsoleteData.UrlFormat.AsStringSourceCodeOr());
+        }
+
+        attributeBuilder = attributeBuilder.Append(")]");
+        return builder.AddUsing("System").AppendCodeLine(attributeBuilder.ToString());
+    }
 
     private static string BuildHttpTriggerAttributeSourceCode(this EndpointResolverMetadata resolver)
     {
