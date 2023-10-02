@@ -86,7 +86,8 @@ internal static partial class SourceGeneratorExtensions
             functionName: functionAttribute.GetAttributeValue(0, "Name")?.ToString() ?? string.Empty,
             authorizationLevel: methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? default,
             httpMethodNames: endpointAttribute?.GetHttpMethodNames(),
-            httpRoute: endpointAttribute?.GetHttpRoute());
+            httpRoute: endpointAttribute?.GetHttpRoute(),
+            obsoleteData: endpointType.GetObsoleteData());
 
         static bool IsFunctionAttribute(AttributeData attributeData)
             =>
@@ -95,6 +96,25 @@ internal static partial class SourceGeneratorExtensions
         static bool IsEndpointMetadataAttribute(AttributeData attributeData)
             =>
             attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true;
+    }
+
+    private static ObsoleteData? GetObsoleteData(this INamedTypeSymbol typeSymbol)
+    {
+        var obsoleteAttributeData = typeSymbol.GetAttributes().FirstOrDefault(IsObsoleteAttribute);
+        if (obsoleteAttributeData is null)
+        {
+            return null;
+        }
+
+        return new(
+            message: obsoleteAttributeData.GetAttributeValue(0)?.ToString(),
+            isError: obsoleteAttributeData.GetAttributeValue(1) as bool?,
+            diagnosticId: obsoleteAttributeData.GetAttributePropertyValue("DiagnosticId")?.ToString(),
+            urlFormat: obsoleteAttributeData.GetAttributePropertyValue("UrlFormat")?.ToString());
+
+        static bool IsObsoleteAttribute(AttributeData attributeData)
+            =>
+            attributeData.AttributeClass?.IsSystemType("ObsoleteAttribute") is true;
     }
 
     private static INamedTypeSymbol GetEndpointTypeOrThrow(this IMethodSymbol resolverMethod)

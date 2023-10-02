@@ -13,7 +13,8 @@ internal sealed record class EndpointResolverMetadata
         string functionName,
         int authorizationLevel,
         IReadOnlyCollection<string>? httpMethodNames,
-        string? httpRoute)
+        string? httpRoute,
+        ObsoleteData? obsoleteData)
     {
         EndpointType = endpointType;
         ResolverMethodName = resolverMethodName ?? string.Empty;
@@ -23,6 +24,7 @@ internal sealed record class EndpointResolverMetadata
         AuthorizationLevel = authorizationLevel;
         HttpMethodNames = httpMethodNames ?? Array.Empty<string>();
         HttpRoute = string.IsNullOrEmpty(httpRoute) ? null : httpRoute;
+        ObsoleteData = obsoleteData;
     }
 
     public DisplayedTypeData EndpointType { get; }
@@ -40,4 +42,6 @@ internal sealed record class EndpointResolverMetadata
     public IReadOnlyCollection<string> HttpMethodNames { get; }
 
     public string? HttpRoute { get; }
+
+    public ObsoleteData? ObsoleteData { get; }
 }
