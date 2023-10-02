@@ -87,7 +87,7 @@ internal static partial class SourceGeneratorExtensions
             authorizationLevel: methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? default,
             httpMethodNames: endpointAttribute?.GetHttpMethodNames(),
             httpRoute: endpointAttribute?.GetHttpRoute(),
-            obsoleteData: endpointType.GetObsoleteData());
+            obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData());
 
         static bool IsFunctionAttribute(AttributeData attributeData)
             =>
@@ -98,9 +98,9 @@ internal static partial class SourceGeneratorExtensions
             attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true;
     }
 
-    private static ObsoleteData? GetObsoleteData(this INamedTypeSymbol typeSymbol)
+    private static ObsoleteData? GetObsoleteData(this ISymbol symbol)
     {
-        var obsoleteAttributeData = typeSymbol.GetAttributes().FirstOrDefault(IsObsoleteAttribute);
+        var obsoleteAttributeData = symbol.GetAttributes().FirstOrDefault(IsObsoleteAttribute);
         if (obsoleteAttributeData is null)
         {
             return null;
