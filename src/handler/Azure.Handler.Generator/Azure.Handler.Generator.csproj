@@ -10,7 +10,7 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Handler.Generator</AssemblyName>
-    <Version>0.6.0-build.1</Version>
+    <Version>0.6.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

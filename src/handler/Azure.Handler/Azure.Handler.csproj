@@ -8,7 +8,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Handler</AssemblyName>
-    <Version>0.7.1-build.1</Version>
+    <Version>0.7.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
