@@ -8,8 +8,15 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Handler</AssemblyName>
-    <Version>0.7.1</Version>
+    <Version>0.8.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azure.Handler.Generator\Azure.Handler.Generator.csproj">
+      <PrivateAssets>contentfiles; build</PrivateAssets>
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="GarageGroup.Infra.Handler.Core" Version="0.3.1" />

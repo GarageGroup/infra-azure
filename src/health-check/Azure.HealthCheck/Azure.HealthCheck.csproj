@@ -8,8 +8,15 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.HealthCheck</AssemblyName>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azure.HealthCheck.Generator\Azure.HealthCheck.Generator.csproj">
+      <PrivateAssets>contentfiles; build</PrivateAssets>
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.15.0" />

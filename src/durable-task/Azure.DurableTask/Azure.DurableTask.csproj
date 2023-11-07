@@ -8,11 +8,18 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask</AssemblyName>
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Handler" Version="0.7.1" />
+    <ProjectReference Include="..\Azure.DurableTask.Generator\Azure.DurableTask.Generator.csproj">
+      <PrivateAssets>contentfiles; build</PrivateAssets>
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GarageGroup.Infra.Azure.Handler" Version="0.8.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Activity.Contract" Version="0.0.2" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Instance.Contract" Version="0.0.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.0.4" />
