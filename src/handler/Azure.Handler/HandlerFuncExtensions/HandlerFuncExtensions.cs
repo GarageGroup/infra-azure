@@ -68,19 +68,10 @@ public static partial class HandlerFuncExtensions
             nextAsync.Invoke(input, cancellationToken);
     }
 
-#if NET7_0_OR_GREATER
     private static async Task<string> ReadAsStringAsync(this Stream stream, CancellationToken cancellationToken)
-#else
-    private static async Task<string> ReadAsStringAsync(this Stream stream)
-#endif
     {
         using var streamReader = new StreamReader(stream, Encoding.UTF8);
-
-#if NET7_0_OR_GREATER
         return await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false) ?? string.Empty;
-#else
-        return await streamReader.ReadToEndAsync().ConfigureAwait(false) ?? string.Empty;
-#endif
     }
 
     private static ILogger GetFunctionLogger(this FunctionContext context)
