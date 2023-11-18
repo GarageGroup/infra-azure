@@ -17,10 +17,10 @@ partial class OrchestrationEntityApi
             return ValueTask.FromCanceled<Result<Unit, Failure<HandlerFailureCode>>>(cancellationToken);
         }
 
-        return InnerCallActivityAsync(input, cancellationToken);
+        return InnerSignalEntityAsync(input, cancellationToken);
     }
 
-    private async ValueTask<Result<Unit, Failure<HandlerFailureCode>>> InnerCallActivityAsync<TIn>(
+    private async ValueTask<Result<Unit, Failure<HandlerFailureCode>>> InnerSignalEntityAsync<TIn>(
         OrchestrationEntitySignalIn<TIn> input, CancellationToken cancellationToken)
     {
         var operation = input.OperationName;
