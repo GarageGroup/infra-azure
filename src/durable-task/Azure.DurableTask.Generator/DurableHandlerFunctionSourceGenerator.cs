@@ -13,6 +13,7 @@ public sealed class DurableHandlerFunctionSourceGenerator : HandlerFunctionSourc
         DataProviders = new IFunctionDataProvider[]
         {
             new ActivityFunctionDataProvider(),
+            new EntityFunctionDataProvider(),
             new OrchestrationFunctionDataProvider()
         };
 

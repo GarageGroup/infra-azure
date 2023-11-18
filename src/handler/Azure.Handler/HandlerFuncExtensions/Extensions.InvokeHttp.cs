@@ -34,11 +34,7 @@ partial class HandlerFuncExtensions
         var context = request.FunctionContext;
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
 
-#if NET7_0_OR_GREATER
         var json = await request.Body.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-#else
-        var json = await request.Body.ReadAsStringAsync().ConfigureAwait(false);
-#endif
 
         var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
         return result.Fold(request.CreateSuccessResponse, InnerCreateFailureResponse);

@@ -2,10 +2,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.DurableTask;
+using Microsoft.DurableTask.Entities;
 
 namespace GarageGroup.Infra;
 
-public static partial class OrchestrationFuncExtensions
+public static partial class DurableFuncExtensions
 {
     private static Result<TIn?, Failure<HandlerFailureCode>> GetInputOrFailure<TIn>(
         this TaskOrchestrationContext orchestrationContext)
@@ -17,7 +18,21 @@ public static partial class OrchestrationFuncExtensions
         catch (Exception exception)
         {
             return exception.ToFailure(
-                HandlerFailureCode.Persistent, $"An unexpected exception was thrown when trying to get input type {typeof(TIn).FullName}");
+                HandlerFailureCode.Persistent, $"An unexpected exception was thrown when trying to get orchestration input of {typeof(TIn).FullName}");
+        }
+    }
+
+    private static Result<TIn?, Failure<HandlerFailureCode>> GetInputOrFailure<TIn>(
+        this TaskEntityOperation entityOperation)
+    {
+        try
+        {
+            return entityOperation.GetInput<TIn>();
+        }
+        catch (Exception exception)
+        {
+            return exception.ToFailure(
+                HandlerFailureCode.Persistent, $"An unexpected exception was thrown when trying to get entity input of {typeof(TIn).FullName}");
         }
     }
 

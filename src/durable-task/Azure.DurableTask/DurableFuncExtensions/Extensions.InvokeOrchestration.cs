@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GarageGroup.Infra;
 
-partial class OrchestrationFuncExtensions
+partial class DurableFuncExtensions
 {
     public static Task<TOut> InvokeOrchestrationFunctionAsync<THandler, TIn, TOut>(
         this THandler handler,
