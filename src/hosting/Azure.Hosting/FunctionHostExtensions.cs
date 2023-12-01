@@ -14,7 +14,7 @@ public static class FunctionHostExtensions
     {
         ArgumentNullException.ThrowIfNull(hostBuilder);
 
-        var builder = hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureServices(InnerConfigureApplicationInsights);
+        var builder = hostBuilder.ConfigureSocketsHttpHandlerProvider().ConfigureServices(InnerConfigureServiceCollection);
 
         if (configure is not null)
         {
@@ -32,9 +32,9 @@ public static class FunctionHostExtensions
 
         return builder;
 
-        static void InnerConfigureApplicationInsights(IServiceCollection services)
+        static void InnerConfigureServiceCollection(IServiceCollection services)
             =>
-            services.AddApplicationInsightsTelemetryWorkerService().ConfigureFunctionsApplicationInsights();
+            services.AddApplicationInsightsTelemetryWorkerService().ConfigureFunctionsApplicationInsights().AddTokenCredentialStandardAsSingleton();
 
         static void AddHostConfiguration(HostBuilderContext _, IConfigurationBuilder configurationBuilder)
             =>
