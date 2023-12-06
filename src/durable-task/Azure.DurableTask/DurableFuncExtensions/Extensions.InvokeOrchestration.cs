@@ -50,7 +50,7 @@ partial class DurableFuncExtensions
             return failure;
         }
 
-        static HandlerFailureException ToException(Failure<HandlerFailureCode> failure)
+        static Failure<HandlerFailureCode>.Exception ToException(Failure<HandlerFailureCode> failure)
             =>
             failure.ToException();
     }
