@@ -49,12 +49,7 @@ partial class HandlerFuncExtensions
 
             context.TrackHandlerFailure(failure, json);
 
-            if (failure.FailureCode is HandlerFailureCode.Transient)
-            {
-                return request.CreateResponse(HttpStatusCode.InternalServerError);
-            }
-
-            return request.CreatePersistentFailureResponse(failure);
+            return request.CreateFailureResponse(failure);
         }
     }
 
@@ -81,33 +76,13 @@ partial class HandlerFuncExtensions
         return response;
     }
 
-    private static HttpResponseData CreatePersistentFailureResponse(this HttpRequestData request, Failure<HandlerFailureCode> failure)
+    private static HttpResponseData CreateFailureResponse(this HttpRequestData request, Failure<HandlerFailureCode> failure)
     {
-        var httpFailure = new HttpFailureJson
-        {
-            Type = "Bad Request",
-            Title = "about:blank",
-            Status = 400,
-            Detail = failure.FailureMessage
-        };
+        var response = request.CreateResponse();
 
-        var failureJson = JsonSerializer.Serialize(httpFailure, SerializerOptions);
-        var response = request.CreateResponse(HttpStatusCode.BadRequest);
-
-        response.WriteString(failureJson);
-        response.Headers.TryAddWithoutValidation("Content-Type", "application/problem+json");
+        response.StatusCode = failure.FailureCode is HandlerFailureCode.Persistent ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError;
+        response.WriteString(failure.FailureMessage);
 
         return response;
-    }
-
-    private sealed record class HttpFailureJson
-    {
-        public string? Type { get; init; }
-
-        public string? Title { get; init; }
-
-        public int Status { get; init; }
-
-        public string? Detail { get; init; }
     }
 }

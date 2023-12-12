@@ -32,6 +32,11 @@ public static partial class HandlerFuncExtensions
 
     private static Result<T?, Failure<HandlerFailureCode>> DeserializeOrFailure<T>(this string json)
     {
+        if (string.IsNullOrEmpty(json))
+        {
+            return default(T);
+        }
+
         try
         {
             return JsonSerializer.Deserialize<T>(json, SerializerOptions);
