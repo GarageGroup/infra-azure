@@ -15,7 +15,10 @@ public static partial class HandlerFuncExtensions
 
     static HandlerFuncExtensions()
         =>
-        SerializerOptions = new(JsonSerializerDefaults.Web);
+        SerializerOptions = new(JsonSerializerDefaults.Web)
+        {
+            WriteIndented = true
+        };
 
     private static Result<T?, Failure<HandlerFailureCode>> DeserializeOrFailure<T>(this JsonElement json)
     {
