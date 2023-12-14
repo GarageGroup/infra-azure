@@ -71,7 +71,7 @@ partial class HandlerFunctionProvider
         }
 
         var handlerType = returnType.TypeArguments[0] as INamedTypeSymbol;
-        var handlerInterface = handlerType?.AllInterfaces.FirstOrDefault(IsHandlerType);
+        var handlerInterface = IsHandlerType(handlerType) ? handlerType : handlerType?.AllInterfaces.FirstOrDefault(IsHandlerType);
 
         var inputType = handlerInterface?.TypeArguments.FirstOrDefault();
         var outputType = handlerInterface?.TypeArguments.ElementAtOrDefault(1);
@@ -104,9 +104,9 @@ partial class HandlerFunctionProvider
             jsonRootPath: GetJsonRootPath(inputType),
             functionSpecificData: functionSpecificData);
 
-        static bool IsHandlerType(INamedTypeSymbol typeSymbol)
+        static bool IsHandlerType(INamedTypeSymbol? typeSymbol)
             =>
-            typeSymbol.IsType(DefaultNamespace, "IHandler") && typeSymbol.TypeParameters.Length is 2;
+            typeSymbol?.IsType(DefaultNamespace, "IHandler") is true && typeSymbol.TypeParameters.Length is 2;
     }
 
     private HandlerFunctionMetadata? GetFunctionSpecificData(
