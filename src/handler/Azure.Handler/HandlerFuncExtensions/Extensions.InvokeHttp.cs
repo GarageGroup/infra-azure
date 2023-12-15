@@ -62,13 +62,19 @@ partial class HandlerFuncExtensions
             return httpResponseProvider.GetHttpResponse(httpRequest);
         }
 
-        if (success is Unit)
+        if (success is Unit || success is null)
         {
             return httpRequest.CreateResponse(HttpStatusCode.NoContent);
         }
 
-        var json = JsonSerializer.Serialize(success, SerializerOptions);
         var response = httpRequest.CreateResponse(HttpStatusCode.OK);
+        if (success is string text)
+        {
+            response.WriteString(text);
+            return response;
+        }
+
+        var json = JsonSerializer.Serialize(success, SerializerOptions);
 
         response.WriteString(json);
         response.Headers.TryAddWithoutValidation("Content-Type", MediaTypeNames.Application.Json);
