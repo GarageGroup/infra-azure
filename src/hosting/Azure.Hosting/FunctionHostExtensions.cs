@@ -24,6 +24,7 @@ public static class FunctionHostExtensions
     {
         var builder = hostBuilder
             .ConfigureAppConfiguration(AddHostConfiguration)
+            .ConfigureAppConfiguration(ConfigureAzureAppConfiguration)
             .ConfigureSocketsHttpHandlerProvider()
             .ConfigureServices(InnerConfigureServiceCollection);
 
@@ -52,5 +53,27 @@ public static class FunctionHostExtensions
                 configurationBuilder.AddJsonFile(Path.Combine(rootPath, "host.json"));
             }
         }
+
+        static void ConfigureAzureAppConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
+        {
+            var connectionString = context.InnerGetConnectionString("AppConfig");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                return;
+            }
+
+            builder.AddAzureAppConfiguration(connectionString);
+        }
+    }
+
+    private static string? InnerGetConnectionString(this HostBuilderContext context, string name)
+    {
+        var connectionString = Environment.GetEnvironmentVariable($"ConnectionStrings:{name}");
+        if (string.IsNullOrEmpty(connectionString) is false)
+        {
+            return connectionString;
+        }
+
+        return context.Configuration.GetConnectionString(name);
     }
 }
