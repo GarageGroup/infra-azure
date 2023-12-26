@@ -68,7 +68,13 @@ public static class FunctionHostExtensions
 
     private static string? InnerGetConnectionString(this HostBuilderContext context, string name)
     {
-        var connectionString = Environment.GetEnvironmentVariable($"ConnectionStrings:{name}");
+        var connectionString = Environment.GetEnvironmentVariable($"ConnectionStrings__{name}");
+        if (string.IsNullOrEmpty(connectionString) is false)
+        {
+            return connectionString;
+        }
+
+        connectionString = Environment.GetEnvironmentVariable($"ConnectionStrings:{name}");
         if (string.IsNullOrEmpty(connectionString) is false)
         {
             return connectionString;
