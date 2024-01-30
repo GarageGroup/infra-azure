@@ -22,20 +22,20 @@ internal sealed class EntityFunctionDataProvider : IFunctionDataProvider
         }
 
         return new(
-            namespaces: new[]
-            {
+            namespaces:
+            [
                 "System.Threading",
                 "System.Threading.Tasks",
                 "Microsoft.Azure.Functions.Worker"
-            },
+            ],
             responseTypeDisplayName: string.Equals("Unit", context.OutputType.DisplayedTypeName, StringComparison.Ordinal) switch
             {
                 true => "Task",
                 _ => $"Task<{context.OutputType.DisplayedTypeName}>"
             },
             extensionsMethodName: "RunEntityFunctionAsync",
-            arguments: new FunctionArgumentMetadata[]
-            {
+            arguments:
+            [
                 new(
                     namespaces: default,
                     typeDisplayName: "TaskEntityDispatcher",
@@ -67,6 +67,6 @@ internal sealed class EntityFunctionDataProvider : IFunctionDataProvider
                     extensionMethodArgumentOrder: int.MaxValue,
                     resolverMethodArgumentOrder: null,
                     attributes: default)
-            });
+            ]);
     }
 }

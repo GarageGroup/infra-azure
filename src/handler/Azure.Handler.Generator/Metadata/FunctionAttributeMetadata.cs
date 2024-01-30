@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
 
@@ -11,10 +10,10 @@ public sealed record class FunctionAttributeMetadata
         IReadOnlyList<string>? constructorArgumentSourceCodes,
         IReadOnlyList<KeyValuePair<string, string>>? propertySourceCodes)
     {
-        Namespaces = namespaces ?? Array.Empty<string>();
+        Namespaces = namespaces ?? [];
         TypeDisplayName = typeDisplayName ?? string.Empty;
-        ConstructorArgumentSourceCodes = constructorArgumentSourceCodes ?? Array.Empty<string>();
-        PropertySourceCodes = propertySourceCodes ?? Array.Empty<KeyValuePair<string, string>>();
+        ConstructorArgumentSourceCodes = constructorArgumentSourceCodes ?? [];
+        PropertySourceCodes = propertySourceCodes ?? [];
     }
 
     public IReadOnlyList<string> Namespaces { get; }

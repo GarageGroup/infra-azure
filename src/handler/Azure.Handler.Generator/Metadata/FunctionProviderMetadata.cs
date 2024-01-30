@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
@@ -14,7 +13,7 @@ public sealed record class FunctionProviderMetadata
         Namespace = @namespace ?? string.Empty;
         TypeName = typeName ?? string.Empty;
         ProviderType = providerType;
-        ResolverTypes = resolverTypes ?? Array.Empty<HandlerResolverMetadata>();
+        ResolverTypes = resolverTypes ?? [];
     }
 
     public string Namespace { get; }

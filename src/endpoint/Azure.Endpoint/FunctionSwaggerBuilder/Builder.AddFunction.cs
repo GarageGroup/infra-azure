@@ -13,7 +13,7 @@ partial class FunctionSwaggerBuilder
             return this;
         }
 
-        document.Paths ??= new OpenApiPaths();
+        document.Paths ??= [];
         var pathItem = GetOrCreatePathItem(document.Paths, endpointMetadata);
 
         var operationType = ToOperationType(endpointMetadata.Method);

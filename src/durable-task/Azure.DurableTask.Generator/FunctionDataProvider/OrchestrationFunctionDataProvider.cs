@@ -13,20 +13,20 @@ internal sealed class OrchestrationFunctionDataProvider : IFunctionDataProvider
         }
 
         return new(
-            namespaces: new[]
-            {
+            namespaces:
+            [
                 "System.Threading",
                 "System.Threading.Tasks",
                 "Microsoft.DurableTask"
-            },
+            ],
             responseTypeDisplayName: string.Equals("Unit", context.OutputType.DisplayedTypeName, StringComparison.Ordinal) switch
             {
                 true => "Task",
                 _ => $"Task<{context.OutputType.DisplayedTypeName}>"
             },
             extensionsMethodName: "RunOrchestrationFunctionAsync",
-            arguments: new FunctionArgumentMetadata[]
-            {
+            arguments:
+            [
                 new(
                     namespaces: default,
                     typeDisplayName: "TaskOrchestrationContext",
@@ -34,14 +34,14 @@ internal sealed class OrchestrationFunctionDataProvider : IFunctionDataProvider
                     orderNumber: int.MinValue,
                     extensionMethodArgumentOrder: int.MinValue,
                     resolverMethodArgumentOrder: null,
-                    attributes: new FunctionAttributeMetadata[]
-                    {
+                    attributes:
+                    [
                         new(
                             namespaces: default,
                             typeDisplayName: "OrchestrationTrigger",
                             constructorArgumentSourceCodes: default,
                             propertySourceCodes: default),
-                    }),
+                    ]),
                 new(
                     namespaces: default,
                     typeDisplayName: "FunctionContext",
@@ -58,6 +58,6 @@ internal sealed class OrchestrationFunctionDataProvider : IFunctionDataProvider
                     extensionMethodArgumentOrder: int.MaxValue,
                     resolverMethodArgumentOrder: null,
                     attributes: default)
-            });
+            ]);
     }
 }

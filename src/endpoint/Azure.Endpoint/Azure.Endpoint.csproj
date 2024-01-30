@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
-    <Version>0.11.0</Version>
+    <Version>0.12.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,9 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.6.0" />
-    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.13.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.16.0" />
+    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.7.0" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.14.1" />
   </ItemGroup>
 
 </Project>

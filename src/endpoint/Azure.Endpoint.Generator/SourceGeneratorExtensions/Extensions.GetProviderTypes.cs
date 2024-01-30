@@ -172,7 +172,7 @@ internal static partial class SourceGeneratorExtensions
             return null;
         }
 
-        return new[] { method ?? string.Empty };
+        return [method ?? string.Empty];
     }
 
     private static string? GetHttpRoute(this AttributeData endpointAttribute)

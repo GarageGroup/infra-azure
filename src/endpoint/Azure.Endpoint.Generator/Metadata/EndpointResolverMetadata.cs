@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
@@ -22,7 +21,7 @@ internal sealed record class EndpointResolverMetadata
         DependencyFieldName = dependencyFieldName;
         FunctionName = functionName ?? string.Empty;
         AuthorizationLevel = authorizationLevel;
-        HttpMethodNames = httpMethodNames ?? Array.Empty<string>();
+        HttpMethodNames = httpMethodNames ?? [];
         HttpRoute = string.IsNullOrEmpty(httpRoute) ? null : httpRoute;
         ObsoleteData = obsoleteData;
     }

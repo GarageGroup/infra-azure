@@ -3,11 +3,7 @@ using System;
 namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class EndpointFunctionAttribute : Attribute
+public sealed class EndpointFunctionAttribute(string name) : Attribute
 {
-    public EndpointFunctionAttribute(string name)
-        =>
-        Name = name ?? string.Empty;
-
-    public string Name { get; }
+    public string Name { get; } = name ?? string.Empty;
 }

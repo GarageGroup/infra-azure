@@ -10,12 +10,12 @@ public sealed class DurableHandlerFunctionSourceGenerator : HandlerFunctionSourc
 
     static DurableHandlerFunctionSourceGenerator()
         =>
-        DataProviders = new IFunctionDataProvider[]
-        {
+        DataProviders =
+        [
             new ActivityFunctionDataProvider(),
             new EntityFunctionDataProvider(),
             new OrchestrationFunctionDataProvider()
-        };
+        ];
 
     protected override HandlerFunctionProvider GetFunctionProvider()
         =>

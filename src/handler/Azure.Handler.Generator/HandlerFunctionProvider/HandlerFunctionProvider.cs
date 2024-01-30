@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
@@ -9,7 +8,7 @@ public sealed partial class HandlerFunctionProvider(IReadOnlyList<IFunctionDataP
 
     private readonly IReadOnlyList<IFunctionDataProvider> functionDataProviders
         =
-        functionDataProviders ?? Array.Empty<IFunctionDataProvider>();
+        functionDataProviders ?? [];
 
     private readonly string typeNameSuffix
         =
