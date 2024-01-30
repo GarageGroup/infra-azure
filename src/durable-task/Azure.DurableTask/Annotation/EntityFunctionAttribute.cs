@@ -3,11 +3,7 @@
 namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class EntityFunctionAttribute : HandlerFunctionAttribute
+public sealed class EntityFunctionAttribute(string name) : HandlerFunctionAttribute(name)
 {
-    public EntityFunctionAttribute(string name) : base(name)
-    {
-    }
-
     public string? EntityName { get; set; }
 }

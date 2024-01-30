@@ -22,7 +22,7 @@ internal sealed partial class OrchestrationActivityApi : IOrchestrationActivityA
             return null;
         }
 
-        return new TaskOptions(
+        return new(
             retry: new RetryPolicy(
                 maxNumberOfAttempts: option.MaxNumberOfAttempts,
                 firstRetryInterval: option.FirstRetryInterval,

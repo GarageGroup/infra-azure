@@ -10,12 +10,12 @@ public sealed class HandlerFunctionSourceGenerator : HandlerFunctionSourceGenera
 
     static HandlerFunctionSourceGenerator()
         =>
-        DataProviders = new IFunctionDataProvider[]
-        {
+        DataProviders =
+        [
             new HttpFunctionDataProvider(),
             new ServiceBusFunctionDataProvider(),
             new EventGridFunctionDataProvider()
-        };
+        ];
 
     protected override HandlerFunctionProvider GetFunctionProvider()
         =>

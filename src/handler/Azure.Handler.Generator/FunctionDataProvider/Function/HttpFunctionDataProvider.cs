@@ -15,16 +15,16 @@ internal sealed class HttpFunctionDataProvider : IFunctionDataProvider
         }
 
         return new(
-            namespaces: new[]
-            {
+            namespaces:
+            [
                 "Microsoft.Azure.Functions.Worker.Http",
                 "System.Threading",
                 "System.Threading.Tasks"
-            },
+            ],
             responseTypeDisplayName: "Task<HttpResponseData>",
             extensionsMethodName: "RunHttpFunctionAsync",
-            arguments: new FunctionArgumentMetadata[]
-            {
+            arguments:
+            [
                 new(
                     namespaces: default,
                     typeDisplayName: "HttpRequestData",
@@ -32,10 +32,10 @@ internal sealed class HttpFunctionDataProvider : IFunctionDataProvider
                     orderNumber: int.MinValue,
                     extensionMethodArgumentOrder: int.MinValue,
                     resolverMethodArgumentOrder: null,
-                    attributes: new[]
-                    {
+                    attributes:
+                    [
                         BuildHttpTriggerAttributeMetadata(functionAttribute)
-                    }),
+                    ]),
                 new(
                     namespaces: default,
                     typeDisplayName: "CancellationToken",
@@ -44,7 +44,7 @@ internal sealed class HttpFunctionDataProvider : IFunctionDataProvider
                     extensionMethodArgumentOrder: int.MaxValue,
                     resolverMethodArgumentOrder: null,
                     attributes: default)
-            });
+            ]);
     }
 
     private static FunctionAttributeMetadata BuildHttpTriggerAttributeMetadata(AttributeData httpAttribute)
@@ -72,11 +72,11 @@ internal sealed class HttpFunctionDataProvider : IFunctionDataProvider
         return new(
             namespaces: default,
             typeDisplayName: "HttpTrigger",
-            constructorArgumentSourceCodes: new[]
-            {
+            constructorArgumentSourceCodes:
+            [
                 authorizationLevelSourceCode,
                 method.AsStringSourceCodeOr()
-            },
+            ],
             propertySourceCodes: properties.ToArray());
     }
 

@@ -19,16 +19,16 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
         }
 
         return new(
-            namespaces: new[]
-            {
+            namespaces:
+            [
                 "System.Text.Json",
                 "System.Threading",
                 "System.Threading.Tasks"
-            },
+            ],
             responseTypeDisplayName: "Task",
             extensionsMethodName: "RunAzureFunctionAsync",
-            arguments: new FunctionArgumentMetadata[]
-            {
+            arguments:
+            [
                 new(
                     namespaces: default,
                     typeDisplayName: "JsonElement",
@@ -36,10 +36,10 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
                     orderNumber: int.MinValue,
                     extensionMethodArgumentOrder: int.MinValue,
                     resolverMethodArgumentOrder: null,
-                    attributes: new[]
-                    {
+                    attributes:
+                    [
                         BuildServiceBusTriggerAttributeMetadata(functionAttribute)
-                    }),
+                    ]),
                 new(
                     namespaces: default,
                     typeDisplayName: "FunctionContext",
@@ -56,7 +56,7 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
                     extensionMethodArgumentOrder: int.MaxValue,
                     resolverMethodArgumentOrder: null,
                     attributes: default)
-            });
+            ]);
     }
 
     private static FunctionAttributeMetadata BuildServiceBusTriggerAttributeMetadata(AttributeData serviceBusAttribute)

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
@@ -11,10 +10,10 @@ public sealed record class HandlerFunctionMetadata
         string extensionsMethodName,
         IReadOnlyList<FunctionArgumentMetadata> arguments)
     {
-        Namespaces = namespaces ?? Array.Empty<string>();
+        Namespaces = namespaces ?? [];
         ResponseTypeDisplayName = responseTypeDisplayName ?? string.Empty;
         ExtensionsMethodName = extensionsMethodName ?? string.Empty;
-        Arguments = arguments ?? Array.Empty<FunctionArgumentMetadata>();
+        Arguments = arguments ?? [];
     }
 
     public IReadOnlyList<string> Namespaces { get; }

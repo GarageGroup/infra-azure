@@ -12,16 +12,16 @@ internal sealed class EventGridFunctionDataProvider : IFunctionDataProvider
         }
 
         return new(
-            namespaces: new[]
-            {
+            namespaces:
+            [
                 "System.Text.Json",
                 "System.Threading",
                 "System.Threading.Tasks"
-            },
+            ],
             responseTypeDisplayName: "Task",
             extensionsMethodName: "RunAzureFunctionAsync",
-            arguments: new FunctionArgumentMetadata[]
-            {
+            arguments:
+            [
                 new(
                     namespaces: default,
                     typeDisplayName: "JsonElement",
@@ -29,14 +29,14 @@ internal sealed class EventGridFunctionDataProvider : IFunctionDataProvider
                     orderNumber: int.MinValue,
                     extensionMethodArgumentOrder: int.MinValue,
                     resolverMethodArgumentOrder: null,
-                    attributes: new FunctionAttributeMetadata[]
-                    {
+                    attributes:
+                    [
                         new(
                             namespaces: default,
                             typeDisplayName: "EventGridTrigger",
                             constructorArgumentSourceCodes: default,
                             propertySourceCodes: default),
-                    }),
+                    ]),
                 new(
                     namespaces: default,
                     typeDisplayName: "FunctionContext",
@@ -53,6 +53,6 @@ internal sealed class EventGridFunctionDataProvider : IFunctionDataProvider
                     extensionMethodArgumentOrder: int.MaxValue,
                     resolverMethodArgumentOrder: null,
                     attributes: default)
-            });
+            ]);
     }
 }

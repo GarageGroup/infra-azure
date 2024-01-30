@@ -3,9 +3,6 @@ using System;
 namespace GarageGroup.Infra;
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class ActivityFunctionAttribute : HandlerFunctionAttribute
+public sealed class ActivityFunctionAttribute(string name) : HandlerFunctionAttribute(name)
 {
-    public ActivityFunctionAttribute(string name) : base(name)
-    {
-    }
 }

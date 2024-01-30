@@ -18,7 +18,7 @@ public static partial class SwaggerFunction
 
     private const string DefaultSwaggerSection = "Swagger";
 
-    private static readonly string[] YamlFormats = new[] { "yaml", "yml" };
+    private static readonly string[] YamlFormats = ["yaml", "yml"];
 
     private static readonly Lazy<string> LazyHtmlTemplate = new(BuildHtmlTemplate);
 

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GarageGroup.Infra;
@@ -14,13 +13,13 @@ public sealed record class FunctionArgumentMetadata
         int? resolverMethodArgumentOrder,
         IReadOnlyList<FunctionAttributeMetadata>? attributes)
     {
-        Namespaces = namespaces ?? Array.Empty<string>();
+        Namespaces = namespaces ?? [];
         TypeDisplayName = typeDisplayName ?? string.Empty;
         ArgumentName = argumentName ?? string.Empty;
         OrderNumber = orderNumber;
         ExtensionMethodArgumentOrder = extensionMethodArgumentOrder;
         ResolverMethodArgumentOrder = resolverMethodArgumentOrder;
-        Attributes = attributes ?? Array.Empty<FunctionAttributeMetadata>();
+        Attributes = attributes ?? [];
     }
 
     public IReadOnlyList<string> Namespaces { get; }
