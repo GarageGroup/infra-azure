@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -9,7 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask</AssemblyName>
-    <Version>0.6.0</Version>
+    <Version>0.7.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Handler" Version="0.13.0" />
+    <PackageReference Include="GarageGroup.Infra.Azure.Handler" Version="0.14.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Activity.Contract" Version="0.2.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Entity.Contract" Version="0.1.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Instance.Contract" Version="0.2.0" />

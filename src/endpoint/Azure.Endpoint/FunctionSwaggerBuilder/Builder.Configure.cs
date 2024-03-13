@@ -9,7 +9,7 @@ partial class FunctionSwaggerBuilder
     {
         ArgumentNullException.ThrowIfNull(configure);
 
-        configure(document);
+        configure.Invoke(document);
         return this;
     }
 }
