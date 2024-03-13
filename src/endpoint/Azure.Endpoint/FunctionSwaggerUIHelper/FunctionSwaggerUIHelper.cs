@@ -45,21 +45,13 @@ internal static class FunctionSwaggerUIHelper
 
     private static Stream GetZippedResources()
     {
-        var assembly = Assembly.GetAssembly(typeof(SwashBuckleClient));
-        if (assembly is null)
-        {
-            throw new InvalidOperationException($"Assembly for type {typeof(SwashBuckleClient)} was not found");
-        }
+        var assembly = Assembly.GetAssembly(typeof(SwashBuckleClient))
+            ?? throw new InvalidOperationException($"Assembly for type {typeof(SwashBuckleClient)} was not found");
 
         var resourceName = $"{typeof(ISwashBuckleClient).Namespace}.EmbededResources.resources.zip";
-        var resources = assembly.GetManifestResourceStream(resourceName);
 
-        if (resources is null)
-        {
-            throw new InvalidOperationException($"ManifestResource {resourceName} must be not null");
-        }
-
-        return resources;
+        return assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"ManifestResource {resourceName} must be not null");
     }
 
     private static ZipArchiveEntry GetEntryOrThrow(this ZipArchive archive, string entryName)
