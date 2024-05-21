@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
@@ -13,6 +14,95 @@ internal static partial class SourceGeneratorExtensions
     private const string ResolverStandardStart = "Use";
 
     private const string ResolverStandardEnd = "Endpoint";
+
+    private static IReadOnlyList<FunctionArgumentMetadata> BuildDefaultArguments(int authorizationLevel, AttributeData? endpointAttribute)
+    {
+        return
+        [
+            new(
+                namespaces: default,
+                typeDisplayName: "HttpRequestData",
+                argumentName: "requestData",
+                orderNumber: int.MinValue,
+                extensionMethodArgumentOrder: int.MinValue,
+                resolverMethodArgumentOrder: null,
+                attributes:
+                [
+                    BuildHttpTriggerAttributeMetadata(authorizationLevel, endpointAttribute)
+                ]),
+            new(
+                namespaces: default,
+                typeDisplayName: "CancellationToken",
+                argumentName: "cancellationToken",
+                orderNumber: int.MaxValue,
+                extensionMethodArgumentOrder: int.MaxValue,
+                resolverMethodArgumentOrder: null,
+                attributes: default)
+        ];
+    }
+
+    private static FunctionAttributeMetadata BuildHttpTriggerAttributeMetadata(int authorizationLevel, AttributeData? endpointAttribute)
+    {
+        var authorizationLevelSourceCode = authorizationLevel switch
+        {
+            0 => "AuthorizationLevel.Anonymous",
+            1 => "AuthorizationLevel.User",
+            2 => "AuthorizationLevel.Function",
+            3 => "AuthorizationLevel.System",
+            4 => "AuthorizationLevel.Admin",
+            _ => "(AuthorizationLevel)" + authorizationLevel
+        };
+
+        var methodBuilder = new StringBuilder();
+        foreach (var method in endpointAttribute.GetHttpMethodNames())
+        {
+            if (string.IsNullOrEmpty(method))
+            {
+                continue;
+            }
+
+            if (methodBuilder.Length > 0)
+            {
+                methodBuilder = methodBuilder.Append(", ");
+            }
+
+            methodBuilder = methodBuilder.Append(method.AsStringSourceCodeOr());
+        }
+
+        var properties = new Dictionary<string, string>();
+        var route = endpointAttribute.GetHttpRoute();
+
+        if (string.IsNullOrEmpty(route) is false)
+        {
+            properties["Route"] = route.AsStringSourceCodeOr();
+        }
+
+        return new(
+            namespaces: default,
+            typeDisplayName: "HttpTrigger",
+            constructorArgumentSourceCodes:
+            [
+                authorizationLevelSourceCode,
+                methodBuilder.ToString()
+            ],
+            propertySourceCodes: [.. properties]);
+    }
+
+    private static int GetAuthorizationLevel(AttributeData httpAttribute)
+    {
+        var levelValue = httpAttribute.GetAttributePropertyValue("AuthLevel");
+        if (levelValue is null)
+        {
+            return default;
+        }
+
+        if (levelValue is not int level)
+        {
+            throw new InvalidOperationException($"An unexpected bot function authorization level: {levelValue}");
+        }
+
+        return level;
+    }
 
     private static string RemoveStandardStart(this string name)
     {

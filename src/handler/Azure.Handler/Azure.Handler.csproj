@@ -9,7 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Handler</AssemblyName>
-    <Version>0.14.0</Version>
+    <Version>0.15.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="GarageGroup.Infra.Handler.Core" Version="0.6.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.17.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.18.0" />
     <PackageReference Include="PrimeFuncPack.Dependency" Version="2.1.0" />
   </ItemGroup>
 

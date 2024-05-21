@@ -34,9 +34,9 @@ partial class HandlerFuncExtensions
         var context = request.FunctionContext;
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
 
-        var json = await request.Body.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var json = await request.Body.ReadAsStringAsync(cancellationToken);
 
-        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
+        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token);
         return result.Fold(request.CreateSuccessResponse, InnerCreateFailureResponse);
 
         HttpResponseData InnerCreateFailureResponse(Failure<HandlerFailureCode> failure)

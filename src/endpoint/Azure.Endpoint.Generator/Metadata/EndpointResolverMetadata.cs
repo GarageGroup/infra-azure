@@ -10,20 +10,18 @@ internal sealed record class EndpointResolverMetadata
         string functionMethodName,
         string dependencyFieldName,
         string functionName,
-        int authorizationLevel,
-        IReadOnlyCollection<string>? httpMethodNames,
-        string? httpRoute,
-        ObsoleteData? obsoleteData)
+        ObsoleteData? obsoleteData,
+        IReadOnlyList<FunctionArgumentMetadata> arguments,
+        bool isSwaggerHidden)
     {
         EndpointType = endpointType;
         ResolverMethodName = resolverMethodName ?? string.Empty;
         FunctionMethodName = functionMethodName ?? string.Empty;
         DependencyFieldName = dependencyFieldName;
         FunctionName = functionName ?? string.Empty;
-        AuthorizationLevel = authorizationLevel;
-        HttpMethodNames = httpMethodNames ?? [];
-        HttpRoute = string.IsNullOrEmpty(httpRoute) ? null : httpRoute;
         ObsoleteData = obsoleteData;
+        Arguments = arguments ?? [];
+        IsSwaggerHidden = isSwaggerHidden;
     }
 
     public DisplayedTypeData EndpointType { get; }
@@ -36,11 +34,9 @@ internal sealed record class EndpointResolverMetadata
 
     public string FunctionName { get; }
 
-    public int AuthorizationLevel { get; }
-
-    public IReadOnlyCollection<string> HttpMethodNames { get; }
-
-    public string? HttpRoute { get; }
-
     public ObsoleteData? ObsoleteData { get; }
+
+    public IReadOnlyList<FunctionArgumentMetadata> Arguments { get; }
+
+    public bool IsSwaggerHidden { get; }
 }

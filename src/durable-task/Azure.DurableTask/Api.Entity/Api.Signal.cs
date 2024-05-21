@@ -31,7 +31,7 @@ partial class OrchestrationEntityApi
                 name: input.Entity.Name, 
                 key: input.Entity.Key);
 
-            await durableTaskClient.Entities.SignalEntityAsync(id, input.OperationName, input.Value, null, cancellationToken).ConfigureAwait(false);
+            await durableTaskClient.Entities.SignalEntityAsync(id, input.OperationName, input.Value, null, cancellationToken);
 
             return Result.Success<Unit>(default);
         }

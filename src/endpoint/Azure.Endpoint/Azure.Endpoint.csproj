@@ -9,7 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
-    <Version>0.13.0</Version>
+    <Version>0.14.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.8.0" />
-    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.14.1" />
+    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.9.0" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.15.0" />
   </ItemGroup>
 
 </Project>

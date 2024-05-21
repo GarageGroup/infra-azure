@@ -6,4 +6,6 @@ namespace GarageGroup.Infra;
 public sealed class EndpointFunctionAttribute(string name) : Attribute
 {
     public string Name { get; } = name ?? string.Empty;
+
+    public bool IsSwaggerHidden { get; init; }
 }

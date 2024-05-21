@@ -56,7 +56,7 @@ public static partial class HandlerFuncExtensions
     {
         try
         {
-            return await handler.HandleAsync(input, cancellationToken).ConfigureAwait(false);
+            return await handler.HandleAsync(input, cancellationToken);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
@@ -79,7 +79,7 @@ public static partial class HandlerFuncExtensions
     private static async Task<string> ReadAsStringAsync(this Stream stream, CancellationToken cancellationToken)
     {
         using var streamReader = new StreamReader(stream, Encoding.UTF8);
-        return await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false) ?? string.Empty;
+        return await streamReader.ReadToEndAsync(cancellationToken) ?? string.Empty;
     }
 
     private static ILogger GetFunctionLogger(this FunctionContext context)
