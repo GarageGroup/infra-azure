@@ -42,6 +42,11 @@ internal static class FunctionSwaggerBuilder
     {
         foreach (var resolver in resolverTypes)
         {
+            if (resolver.IsSwaggerHidden)
+            {
+                continue;
+            }
+
             builder = builder.AddUsings(resolver.EndpointType.AllNamespaces).AppendCodeLine(
                 $".AddFunctionEndpoint({resolver.EndpointType.DisplayedTypeName}.GetEndpointMetadata())");
         }

@@ -36,13 +36,13 @@ partial class DurableFuncExtensions
         where THandler : IHandler<TIn, TOut>
     {
         TOut? output = default;
-        await dispatcher.DispatchAsync(InnerDispatchAsync).ConfigureAwait(false);
+        await dispatcher.DispatchAsync(InnerDispatchAsync);
         return output!;
 
         async ValueTask<object?> InnerDispatchAsync(TaskEntityOperation operation)
         {
             using var source = CancellationTokenSource.CreateLinkedTokenSource(functionContext.CancellationToken, cancellationToken);
-            var result = await operation.GetInputOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, source.Token).ConfigureAwait(false);
+            var result = await operation.GetInputOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, source.Token);
 
             if (result.IsSuccess)
             {

@@ -12,33 +12,29 @@ internal static partial class SourceGeneratorExtensions
         var visitor = new ExportedTypesCollector(context.CancellationToken);
         visitor.VisitNamespace(context.Compilation.GlobalNamespace);
 
-        return visitor.GetNonPrivateTypes().Select(GetFunctionMetadata).NotNull().ToArray();
+        return visitor.GetExportedTypes().Select(GetFunctionMetadata).NotNull().ToArray();
     }
 
     private static FunctionProviderMetadata? GetFunctionMetadata(INamedTypeSymbol typeSymbol)
     {
-        var providerAttribute = typeSymbol.GetAttributes().FirstOrDefault(IsFunctionProviderAttribute);
-        if (providerAttribute is null)
+        if (typeSymbol.TypeArguments.Any())
         {
             return null;
         }
 
-        if (typeSymbol.TypeArguments.Any())
-        {
-            throw new InvalidOperationException($"Function provider class '{typeSymbol.Name}' must not have generic arguments");
-        }
-
         var typeAuthorizationLevel = typeSymbol.GetAuthorizationLevel();
+        var resolverTypes = typeSymbol.GetMembers().OfType<IMethodSymbol>().Select(InnerGetResolverMetadata).NotNull().ToArray();
+
+        if (resolverTypes.Length is 0)
+        {
+            return null;
+        }
 
         return new(
             @namespace: typeSymbol.ContainingNamespace.ToString(),
             typeName: typeSymbol.Name + "EndpointFunction",
             providerType: typeSymbol.GetDisplayedData(),
-            resolverTypes: typeSymbol.GetMembers().OfType<IMethodSymbol>().Select(InnerGetResolverMetadata).NotNull().ToArray());
-
-        static bool IsFunctionProviderAttribute(AttributeData attributeData)
-            =>
-            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionProviderAttribute") is true;
+            resolverTypes: resolverTypes);
 
         EndpointResolverMetadata? InnerGetResolverMetadata(IMethodSymbol methodSymbol)
             =>
@@ -63,11 +59,6 @@ internal static partial class SourceGeneratorExtensions
             throw methodSymbol.CreateInvalidMethodException("must be public or internal");
         }
 
-        if (methodSymbol.Parameters.Any())
-        {
-            throw methodSymbol.CreateInvalidMethodException("must not have parameters");
-        }
-
         if (methodSymbol.TypeParameters.Any())
         {
             throw methodSymbol.CreateInvalidMethodException("must not have generic arguments");
@@ -77,6 +68,32 @@ internal static partial class SourceGeneratorExtensions
         var name = methodSymbol.Name.RemoveStandardStart();
 
         var endpointAttribute = endpointType.GetAttributes().FirstOrDefault(IsEndpointMetadataAttribute);
+        var authorizationLevel = methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? default;
+
+        var defaultArguments = BuildDefaultArguments(authorizationLevel, endpointAttribute).ToDictionary(GetTypeName);
+        var parameterArguments = methodSymbol.Parameters.Select(GetArgumentMetadata).ToArray();
+
+        var arguments = new List<FunctionArgumentMetadata>(parameterArguments.Length);
+        foreach (var parameterArgument in parameterArguments)
+        {
+            if (defaultArguments.TryGetValue(parameterArgument.TypeDisplayName, out var defaultArgument) is false)
+            {
+                arguments.Add(parameterArgument);
+                continue;
+            }
+
+            var argument = new FunctionArgumentMetadata(
+                namespaces: parameterArgument.Namespaces,
+                typeDisplayName: parameterArgument.TypeDisplayName,
+                argumentName: defaultArgument.ArgumentName,
+                orderNumber: defaultArgument.OrderNumber,
+                extensionMethodArgumentOrder: defaultArgument.ExtensionMethodArgumentOrder,
+                resolverMethodArgumentOrder: parameterArgument.ResolverMethodArgumentOrder,
+                attributes: parameterArgument.Attributes);
+
+            arguments.Add(argument);
+            defaultArguments.Remove(parameterArgument.TypeDisplayName);
+        }
 
         return new(
             endpointType: endpointType.GetDisplayedData(),
@@ -84,10 +101,9 @@ internal static partial class SourceGeneratorExtensions
             functionMethodName: name.RemoveStandardEnd().SetLastWordAsFirst() + "Async",
             dependencyFieldName: name.FromLowerCase() + "Dependency",
             functionName: functionAttribute.GetAttributeValue(0, "Name")?.ToString() ?? string.Empty,
-            authorizationLevel: methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? default,
-            httpMethodNames: endpointAttribute?.GetHttpMethodNames(),
-            httpRoute: endpointAttribute?.GetHttpRoute(),
-            obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData());
+            obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
+            arguments: [.. arguments, .. defaultArguments.Values],
+            isSwaggerHidden: functionAttribute.GetAttributePropertyValue("IsSwaggerHidden") is true);
 
         static bool IsFunctionAttribute(AttributeData attributeData)
             =>
@@ -96,6 +112,10 @@ internal static partial class SourceGeneratorExtensions
         static bool IsEndpointMetadataAttribute(AttributeData attributeData)
             =>
             attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true;
+
+        static string GetTypeName(FunctionArgumentMetadata argument)
+            =>
+            argument.TypeDisplayName;
     }
 
     private static ObsoleteData? GetObsoleteData(this ISymbol symbol)
@@ -164,20 +184,20 @@ internal static partial class SourceGeneratorExtensions
             attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionSecurityAttribute") is true;
     }
 
-    private static IReadOnlyCollection<string>? GetHttpMethodNames(this AttributeData endpointAttribute)
+    private static IReadOnlyCollection<string> GetHttpMethodNames(this AttributeData? endpointAttribute)
     {
-        var method = endpointAttribute.GetAttributeValue(0)?.ToString();
+        var method = endpointAttribute?.GetAttributeValue(0)?.ToString();
         if (string.IsNullOrEmpty(method))
         {
-            return null;
+            return [];
         }
 
         return [method ?? string.Empty];
     }
 
-    private static string? GetHttpRoute(this AttributeData endpointAttribute)
+    private static string? GetHttpRoute(this AttributeData? endpointAttribute)
     {
-        var route = endpointAttribute.GetAttributeValue(1)?.ToString();
+        var route = endpointAttribute?.GetAttributeValue(1)?.ToString();
         if (string.IsNullOrEmpty(route))
         {
             return null;
@@ -189,5 +209,62 @@ internal static partial class SourceGeneratorExtensions
         }
 
         return route;
+    }
+
+    private static FunctionArgumentMetadata GetArgumentMetadata(IParameterSymbol parameter, int order)
+    {
+        var type = parameter.Type.GetDisplayedData();
+
+        return new(
+            namespaces: type.AllNamespaces.ToArray(),
+            typeDisplayName: type.DisplayedTypeName,
+            argumentName: parameter.Name,
+            orderNumber: order,
+            extensionMethodArgumentOrder: null,
+            resolverMethodArgumentOrder: order,
+            attributes: parameter.GetAttributes().Select(GetAttributeMetadata).NotNull().ToArray());
+    }
+
+    private static FunctionAttributeMetadata? GetAttributeMetadata(AttributeData attribute)
+    {
+        var type = attribute.AttributeClass?.GetDisplayedData();
+        if (type is null)
+        {
+            return null;
+        }
+
+        var namespaces = type.AllNamespaces.ToList();
+
+        return new(
+            namespaces: namespaces,
+            typeDisplayName: type.DisplayedTypeName,
+            constructorArgumentSourceCodes: attribute.ConstructorArguments.Select(BuildArgumentSourceCode).ToArray(),
+            propertySourceCodes: attribute.NamedArguments.Select(BuildPropertySourceCode).ToArray());
+
+        KeyValuePair<string, string> BuildPropertySourceCode(KeyValuePair<string, TypedConstant> namedArgument)
+            =>
+            new(namedArgument.Key, BuildArgumentSourceCode(namedArgument.Value));
+
+        string BuildArgumentSourceCode(TypedConstant argument)
+        {
+            if (argument.Value is null)
+            {
+                return "null";
+            }
+
+            if (argument.Value is string stringValue)
+            {
+                return stringValue.AsStringSourceCodeOr();
+            }
+
+            if (argument.Type?.GetEnumUnderlyingTypeOrDefault() is not null)
+            {
+                var enumType = argument.Type.GetDisplayedData();
+                namespaces.AddRange(enumType.AllNamespaces);
+                return $"({enumType.DisplayedTypeName}){argument.Value}";
+            }
+
+            return argument.Value.ToString();
+        }
     }
 }

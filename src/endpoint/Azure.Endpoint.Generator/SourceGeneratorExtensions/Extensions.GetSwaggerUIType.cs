@@ -11,7 +11,7 @@ partial class SourceGeneratorExtensions
         var visitor = new ExportedTypesCollector(context.CancellationToken);
         visitor.VisitNamespace(context.Compilation.GlobalNamespace);
 
-        var swaggerUITypes = visitor.GetNonPrivateTypes().Select(GetFunctionSwaggerUIMetadata).NotNull().ToArray();
+        var swaggerUITypes = visitor.GetExportedTypes().Select(GetFunctionSwaggerUIMetadata).NotNull().ToArray();
 
         if (swaggerUITypes.Any() is false)
         {

@@ -29,7 +29,7 @@ partial class HandlerFuncExtensions
         where THandler : IHandler<TIn, TOut>
     {
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
-        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token).ConfigureAwait(false);
+        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token);
 
         return result.MapFailure(LogFailure).MapFailure(ThrowIfTransient);
 

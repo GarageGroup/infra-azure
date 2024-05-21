@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
@@ -17,9 +16,9 @@ internal sealed class ExportedTypesCollector : SymbolVisitor
         exportedTypes = new(SymbolEqualityComparer.Default);
     }
 
-    public IReadOnlyCollection<INamedTypeSymbol> GetNonPrivateTypes()
+    public IReadOnlyCollection<INamedTypeSymbol> GetExportedTypes()
         =>
-        exportedTypes.ToArray();
+        exportedTypes;
 
     public override void VisitAssembly(IAssemblySymbol symbol)
     {
