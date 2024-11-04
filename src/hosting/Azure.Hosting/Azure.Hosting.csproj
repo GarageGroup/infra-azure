@@ -10,7 +10,7 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Hosting</AssemblyName>
-    <Version>0.12.0</Version>
+    <Version>0.12.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
