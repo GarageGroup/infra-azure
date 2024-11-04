@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hosting", "hosting", "{E06F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.Hosting", "hosting\Azure.Hosting\Azure.Hosting.csproj", "{04DA36C0-C56F-407D-81CE-31CD192BAC50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Hosting.Generator", "hosting\Azure.Hosting.Generator\Azure.Hosting.Generator.csproj", "{DAEF8C61-3642-425E-9550-D4A73AF16C36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{04DA36C0-C56F-407D-81CE-31CD192BAC50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04DA36C0-C56F-407D-81CE-31CD192BAC50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04DA36C0-C56F-407D-81CE-31CD192BAC50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAEF8C61-3642-425E-9550-D4A73AF16C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAEF8C61-3642-425E-9550-D4A73AF16C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAEF8C61-3642-425E-9550-D4A73AF16C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAEF8C61-3642-425E-9550-D4A73AF16C36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{768CF06F-CD38-4620-A647-E544C02D6128} = {36301971-7705-42B3-A42D-4F4D80CA4B77}
 		{3FD09394-45D0-4DD9-899C-8AB05926E103} = {36301971-7705-42B3-A42D-4F4D80CA4B77}
 		{04DA36C0-C56F-407D-81CE-31CD192BAC50} = {E06F1C49-3CBC-4F24-8178-3A6B78D5B464}
+		{DAEF8C61-3642-425E-9550-D4A73AF16C36} = {E06F1C49-3CBC-4F24-8178-3A6B78D5B464}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B51C0DA9-EAC0-424F-8A9F-AF9CBF84C963}

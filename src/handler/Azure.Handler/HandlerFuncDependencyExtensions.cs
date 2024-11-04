@@ -22,7 +22,8 @@ public static class HandlerFuncDependencyExtensions
             return Task.FromCanceled<HandlerResultJson<TOut>>(cancellationToken);
         }
 
-        return dependency.Resolve(context.InstanceServices).InternalInvokeAzureFunctionAsync<THandler, TIn, TOut>(jsonData, context, cancellationToken);
+        return dependency.Resolve(context.InstanceServices).InternalInvokeAzureFunctionAsync<THandler, TIn, TOut>(
+            jsonData, context, cancellationToken);
     }
 
     public static Task<HttpResponseData> RunHttpFunctionAsync<THandler, TIn, TOut>(
@@ -37,6 +38,7 @@ public static class HandlerFuncDependencyExtensions
             return Task.FromCanceled<HttpResponseData>(cancellationToken);
         }
 
-        return dependency.Resolve(request.FunctionContext.InstanceServices).InternalHttpFunctionAsync<THandler, TIn, TOut>(request, cancellationToken);
+        return dependency.Resolve(request.FunctionContext.InstanceServices).InternalHttpFunctionAsync<THandler, TIn, TOut>(
+            request, cancellationToken);
     }
 }

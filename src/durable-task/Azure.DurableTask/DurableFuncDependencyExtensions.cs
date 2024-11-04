@@ -19,7 +19,6 @@ public static class DurableFuncDependencyExtensions
         ArgumentNullException.ThrowIfNull(dependency);
         ArgumentNullException.ThrowIfNull(orchestrationContext);
         ArgumentNullException.ThrowIfNull(functionContext);
-        ArgumentNullException.ThrowIfNull(cancellationToken);
 
         return dependency.Resolve(functionContext.InstanceServices).InternalInvokeOrchestrationFunctionAsync<THandler, TIn, TOut>(
             orchestrationContext, functionContext, cancellationToken);
@@ -35,7 +34,6 @@ public static class DurableFuncDependencyExtensions
         ArgumentNullException.ThrowIfNull(dependency);
         ArgumentNullException.ThrowIfNull(dispatcher);
         ArgumentNullException.ThrowIfNull(functionContext);
-        ArgumentNullException.ThrowIfNull(cancellationToken);
 
         return dependency.Resolve(functionContext.InstanceServices).InternalInvokeEntityFunctionAsync<THandler, TIn, TOut>(
             dispatcher, functionContext, cancellationToken);

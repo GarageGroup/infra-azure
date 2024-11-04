@@ -41,7 +41,10 @@ public static class FunctionHostExtensions
 
         static void InnerConfigureServiceCollection(IServiceCollection services)
             =>
-            services.AddApplicationInsightsTelemetryWorkerService().ConfigureFunctionsApplicationInsights().AddTokenCredentialStandardAsSingleton();
+            services
+                .AddApplicationInsightsTelemetryWorkerService()
+                .ConfigureFunctionsApplicationInsights()
+                .AddRefreshableTokenCredentialStandardAsSingleton();
 
         void AddHostConfiguration(HostBuilderContext context, IConfigurationBuilder configurationBuilder)
         {
