@@ -10,14 +10,14 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Swagger</AssemblyName>
-    <Version>0.10.0</Version>
+    <Version>0.11.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AzureExtensions.Swashbuckle" Version="4.0.4" />
-    <PackageReference Include="GarageGroup.Infra.Swagger.Core" Version="3.4.0" />
-    <PackageReference Include="GarageGroup.Infra.Swagger.Option" Version="2.4.3" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.19.0" />
+    <PackageReference Include="GarageGroup.Infra.Swagger.Core" Version="3.5.1" />
+    <PackageReference Include="GarageGroup.Infra.Swagger.Option" Version="2.6.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="2.0.0" />
     <PackageReference Include="PrimeFuncPack.Dependency.Core" Version="2.1.0" />
   </ItemGroup>
 

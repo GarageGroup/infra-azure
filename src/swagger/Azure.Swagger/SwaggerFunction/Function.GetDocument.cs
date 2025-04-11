@@ -32,6 +32,16 @@ partial class SwaggerFunction
 
         var text = document.Serialize(OpenApiSpecVersion.OpenApi3_0, openApiFormat);
 
+        // temporary fix: swagerUI hasn't supported OpenAPI v3.0.4 yet
+        if (openApiFormat is OpenApiFormat.Json)
+        {
+            text = text.Replace("\"openapi\": \"3.0.4\"", "\"openapi\": \"3.0.1\"");
+        }
+        else if (openApiFormat is OpenApiFormat.Yaml)
+        {
+            text = text.Replace("openapi: 3.0.4", "openapi: 3.0.1");
+        }
+
         var response = request.CreateResponse(HttpStatusCode.OK);
         response.WriteString(text);
 
