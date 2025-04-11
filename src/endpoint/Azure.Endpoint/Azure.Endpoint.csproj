@@ -10,7 +10,7 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
-    <Version>0.16.0-build.1</Version>
+    <Version>0.16.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.11.0-build.1" />
+    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.11.0" />
     <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.17.0" />
   </ItemGroup>
 

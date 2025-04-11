@@ -10,7 +10,7 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Swagger</AssemblyName>
-    <Version>0.11.0-build.1</Version>
+    <Version>0.11.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
