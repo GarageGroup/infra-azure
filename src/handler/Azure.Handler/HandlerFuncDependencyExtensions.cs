@@ -17,11 +17,6 @@ public static class HandlerFuncDependencyExtensions
         ArgumentNullException.ThrowIfNull(dependency);
         ArgumentNullException.ThrowIfNull(context);
 
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Task.FromCanceled<HandlerResultJson<TOut>>(cancellationToken);
-        }
-
         return dependency.Resolve(context.InstanceServices).InternalInvokeAzureFunctionAsync<THandler, TIn, TOut>(
             jsonData, context, cancellationToken);
     }
@@ -33,12 +28,31 @@ public static class HandlerFuncDependencyExtensions
         ArgumentNullException.ThrowIfNull(dependency);
         ArgumentNullException.ThrowIfNull(request);
 
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Task.FromCanceled<HttpResponseData>(cancellationToken);
-        }
-
         return dependency.Resolve(request.FunctionContext.InstanceServices).InternalHttpFunctionAsync<THandler, TIn, TOut>(
-            request, cancellationToken);
+            request: request,
+            readInputFunc: default,
+            createSuccessResponseFunc: default,
+            createFailureResponseFunc: default,
+            cancellationToken: cancellationToken);
+    }
+
+    public static Task<HttpResponseData> RunHttpFunctionAsync<THandler, TIn, TOut>(
+        this Dependency<THandler> dependency,
+        HttpRequestData request,
+        Func<HttpRequestData, string, Result<TIn?, Failure<HandlerFailureCode>>>? readInputFunc,
+        Func<HttpRequestData, TOut, HttpResponseData>? createSuccessResponseFunc,
+        Func<HttpRequestData, Failure<HandlerFailureCode>, HttpResponseData>? createFailureResponseFunc,
+        CancellationToken cancellationToken)
+        where THandler : IHandler<TIn, TOut>
+    {
+        ArgumentNullException.ThrowIfNull(dependency);
+        ArgumentNullException.ThrowIfNull(request);
+
+        return dependency.Resolve(request.FunctionContext.InstanceServices).InternalHttpFunctionAsync(
+            request: request,
+            readInputFunc: readInputFunc,
+            createSuccessResponseFunc: createSuccessResponseFunc,
+            createFailureResponseFunc: createFailureResponseFunc,
+            cancellationToken: cancellationToken);
     }
 }

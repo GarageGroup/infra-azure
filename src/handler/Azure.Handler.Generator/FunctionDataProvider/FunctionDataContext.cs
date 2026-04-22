@@ -1,3 +1,5 @@
+using PrimeFuncPack;
+
 namespace GarageGroup.Infra;
 
 public sealed record class FunctionDataContext

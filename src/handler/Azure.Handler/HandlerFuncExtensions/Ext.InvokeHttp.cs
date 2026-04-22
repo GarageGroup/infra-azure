@@ -19,25 +19,95 @@ partial class HandlerFuncExtensions
         ArgumentNullException.ThrowIfNull(handler);
         ArgumentNullException.ThrowIfNull(request);
 
-        if (cancellationToken.IsCancellationRequested)
-        {
-            return Task.FromCanceled<HttpResponseData>(cancellationToken);
-        }
-
-        return handler.InternalHttpFunctionAsync<THandler, TIn, TOut>(request, cancellationToken);
+        return handler.InternalHttpFunctionAsync<THandler, TIn, TOut>(
+            request: request,
+            readInputFunc: default,
+            createSuccessResponseFunc: default,
+            createFailureResponseFunc: default,
+            cancellationToken: cancellationToken);
     }
 
-    internal static async Task<HttpResponseData> InternalHttpFunctionAsync<THandler, TIn, TOut>(
-        this THandler handler, HttpRequestData request, CancellationToken cancellationToken)
+    public static Task<HttpResponseData> InvokeHttpFunctionAsync<THandler, TIn, TOut>(
+        this THandler handler,
+        HttpRequestData request,
+        Func<HttpRequestData, string, Result<TIn?, Failure<HandlerFailureCode>>>? readInputFunc,
+        Func<HttpRequestData, TOut, HttpResponseData>? createSuccessResponseFunc,
+        Func<HttpRequestData, Failure<HandlerFailureCode>, HttpResponseData>? createFailureResponseFunc,
+        CancellationToken cancellationToken)
+        where THandler : IHandler<TIn, TOut>
+    {
+        ArgumentNullException.ThrowIfNull(handler);
+        ArgumentNullException.ThrowIfNull(request);
+
+        return handler.InternalHttpFunctionAsync(
+            request: request,
+            readInputFunc: readInputFunc,
+            createSuccessResponseFunc: createSuccessResponseFunc,
+            createFailureResponseFunc: createFailureResponseFunc,
+            cancellationToken: cancellationToken);
+    }
+
+    internal static Task<HttpResponseData> InternalHttpFunctionAsync<THandler, TIn, TOut>(
+        this THandler handler,
+        HttpRequestData request,
+        Func<HttpRequestData, string, Result<TIn?, Failure<HandlerFailureCode>>>? readInputFunc,
+        Func<HttpRequestData, TOut, HttpResponseData>? createSuccessResponseFunc,
+        Func<HttpRequestData, Failure<HandlerFailureCode>, HttpResponseData>? createFailureResponseFunc,
+        CancellationToken cancellationToken)
+        where THandler : IHandler<TIn, TOut>
+    {
+        return handler.InnerHttpFunctionAsync(
+            request: request,
+            readInputFunc: readInputFunc ?? InnerDeserializeInput,
+            createSuccessResponseFunc: createSuccessResponseFunc ?? CreateSuccessResponse,
+            createFailureResponseFunc: createFailureResponseFunc ?? CreateFailureResponse,
+            cancellationToken: cancellationToken);
+
+        static Result<TIn?, Failure<HandlerFailureCode>> InnerDeserializeInput(
+            HttpRequestData _, string requestBody)
+        {
+            if (string.IsNullOrEmpty(requestBody))
+            {
+                return Result.Success<TIn?>(default);
+            }
+
+            return JsonSerializer.Deserialize<TIn>(requestBody, SerializerOptions);
+        }
+    }
+
+    private static async Task<HttpResponseData> InnerHttpFunctionAsync<THandler, TIn, TOut>(
+        this THandler handler,
+        HttpRequestData request,
+        Func<HttpRequestData, string, Result<TIn?, Failure<HandlerFailureCode>>> readInputFunc,
+        Func<HttpRequestData, TOut, HttpResponseData> createSuccessResponseFunc,
+        Func<HttpRequestData, Failure<HandlerFailureCode>, HttpResponseData> createFailureResponseFunc,
+        CancellationToken cancellationToken)
         where THandler : IHandler<TIn, TOut>
     {
         var context = request.FunctionContext;
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, cancellationToken);
 
-        var json = await request.Body.ReadAsStringAsync(cancellationToken);
+        var requestBody = await request.Body.ReadAsStringAsync(cancellationToken);
 
-        var result = await json.DeserializeOrFailure<TIn>().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token);
-        return result.Fold(request.CreateSuccessResponse, InnerCreateFailureResponse);
+        var result = await InnerReadInputOrFailure().ForwardValueAsync(handler.HandleOrFailureAsync, tokenSource.Token);
+        return result.Fold(InnerCreateSuccessResponse, InnerCreateFailureResponse);
+
+        Result<TIn?, Failure<HandlerFailureCode>> InnerReadInputOrFailure()
+        {
+            try
+            {
+                return readInputFunc.Invoke(request, requestBody);
+            }
+            catch (Exception exception)
+            {
+                return exception.ToFailure(
+                    HandlerFailureCode.Persistent, "An unexpected error occured when the request body was being deserialized");
+            }
+        }
+
+        HttpResponseData InnerCreateSuccessResponse(TOut success)
+            =>
+            createSuccessResponseFunc.Invoke(request, success);
 
         HttpResponseData InnerCreateFailureResponse(Failure<HandlerFailureCode> failure)
         {
@@ -47,20 +117,14 @@ partial class HandlerFuncExtensions
                 failure.SourceException,
                 "An unexpected {code} HTTP Function error occured: {error}", code, failure.FailureMessage);
 
-            context.TrackHandlerFailure(failure, json);
-
-            return request.CreateFailureResponse(failure);
+            context.TrackHandlerFailure(failure, requestBody);
+            return createFailureResponseFunc.Invoke(request, failure);
         }
     }
 
-    private static HttpResponseData CreateSuccessResponse<T>(this HttpRequestData httpRequest, T success)
+    private static HttpResponseData CreateSuccessResponse<T>(HttpRequestData httpRequest, T success)
     {
         Debug.Assert(httpRequest is not null);
-
-        if (success is IHttpResponseProvider httpResponseProvider)
-        {
-            return httpResponseProvider.GetHttpResponse(httpRequest);
-        }
 
         if (success is Unit || success is null)
         {
@@ -82,7 +146,7 @@ partial class HandlerFuncExtensions
         return response;
     }
 
-    private static HttpResponseData CreateFailureResponse(this HttpRequestData request, Failure<HandlerFailureCode> failure)
+    private static HttpResponseData CreateFailureResponse(HttpRequestData request, Failure<HandlerFailureCode> failure)
     {
         var response = request.CreateResponse();
 

@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 

@@ -1,3 +1,5 @@
+using PrimeFuncPack;
+
 namespace GarageGroup.Infra;
 
 public sealed record class HandlerResolverMetadata
@@ -9,6 +11,12 @@ public sealed record class HandlerResolverMetadata
         string resolverMethodName,
         string functionMethodName,
         string functionName,
+        string? readInputFuncName,
+        DisplayedTypeData? readInputFuncType,
+        string? createSuccessResponseFuncName,
+        DisplayedTypeData? createSuccessResponseFuncType,
+        string? createFailureResponseFuncName,
+        DisplayedTypeData? createFailureResponseFuncType,
         string? jsonRootPath,
         HandlerFunctionMetadata functionSpecificData)
     {
@@ -18,6 +26,12 @@ public sealed record class HandlerResolverMetadata
         ResolverMethodName = resolverMethodName ?? string.Empty;
         FunctionMethodName = functionMethodName ?? string.Empty;
         FunctionName = functionName ?? string.Empty;
+        ReadInputFuncName = readInputFuncName;
+        ReadInputFuncType = readInputFuncType;
+        CreateSuccessResponseFuncName = createSuccessResponseFuncName;
+        CreateSuccessResponseFuncType = createSuccessResponseFuncType;
+        CreateFailureResponseFuncName = createFailureResponseFuncName;
+        CreateFailureResponseFuncType = createFailureResponseFuncType;
         JsonRootPath = jsonRootPath;
         FunctionSpecificData = functionSpecificData;
     }
@@ -33,6 +47,18 @@ public sealed record class HandlerResolverMetadata
     public string FunctionMethodName { get; }
 
     public string FunctionName { get; }
+
+    public string? ReadInputFuncName { get; }
+
+    public DisplayedTypeData? ReadInputFuncType { get; }
+
+    public string? CreateSuccessResponseFuncName { get; }
+
+    public DisplayedTypeData? CreateSuccessResponseFuncType { get; }
+
+    public string? CreateFailureResponseFuncName { get; }
+
+    public DisplayedTypeData? CreateFailureResponseFuncType { get; }
 
     public string? JsonRootPath { get; }
 

@@ -2,28 +2,28 @@
 
 namespace GarageGroup.Infra;
 
-public abstract class HandlerFunctionSourceGeneratorBase : ISourceGenerator
+public abstract class HandlerFunctionSourceGeneratorBase : IIncrementalGenerator
 {
     protected abstract HandlerFunctionProvider GetFunctionProvider();
 
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var handlerFunctionProvider = GetFunctionProvider();
-        foreach (var providerType in handlerFunctionProvider.GetFunctionProviderTypes(context))
-        {
-            var constructorSourceCode = providerType.BuildConstructorSourceCode();
-            context.AddSource($"{providerType.TypeName}.g.cs", constructorSourceCode);
+        context.RegisterSourceOutput(context.CompilationProvider, InnerGenerateSource);
 
-            foreach (var resolverType in providerType.ResolverTypes)
+        void InnerGenerateSource(SourceProductionContext context, Compilation compilation)
+        {
+            foreach (var providerType in handlerFunctionProvider.GetFunctionProviderTypes(compilation, context.CancellationToken))
             {
-                var functionSourceCode = providerType.BuildFunctionSourceCode(resolverType);
-                context.AddSource($"{providerType.TypeName}.{resolverType.FunctionMethodName}.g.cs", functionSourceCode);
+                var constructorSourceCode = providerType.BuildConstructorSourceCode();
+                context.AddSource($"{providerType.TypeName}.g.cs", constructorSourceCode);
+
+                foreach (var resolverType in providerType.ResolverTypes)
+                {
+                    var functionSourceCode = providerType.BuildFunctionSourceCode(resolverType);
+                    context.AddSource($"{providerType.TypeName}.{resolverType.FunctionMethodName}.g.cs", functionSourceCode);
+                }
             }
         }
-    }
-
-    public void Initialize(GeneratorInitializationContext context)
-    {
-        // No initialization required for this one
     }
 }

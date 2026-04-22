@@ -2,15 +2,15 @@ using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
-[Generator]
-internal sealed class FunctionSwaggerGenerator : ISourceGenerator
+[Generator(LanguageNames.CSharp)]
+internal sealed class FunctionSwaggerGenerator : IIncrementalGenerator
 {
-    public void Execute(GeneratorExecutionContext context)
-        =>
-        context.AddSource("RefreshableTokenCredentialFunction.g.cs", FunctionBuilder.BuildFunctionSourceCode());
-
-    public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // No initialization required for this one
+        context.RegisterPostInitializationOutput(InnerBuildFunctionSourceCode);
+
+        static void InnerBuildFunctionSourceCode(IncrementalGeneratorPostInitializationContext context)
+            =>
+            context.AddSource("RefreshableTokenCredentialFunction.g.cs", FunctionBuilder.BuildFunctionSourceCode());
     }
 }

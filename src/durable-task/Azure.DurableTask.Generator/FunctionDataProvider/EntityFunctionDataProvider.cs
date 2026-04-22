@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
@@ -14,7 +16,8 @@ internal sealed class EntityFunctionDataProvider : IFunctionDataProvider
         }
 
         var dispatcherAttributeProperties = new List<KeyValuePair<string, string>>();
-        var entityName = functionAttribute.GetAttributePropertyValue("EntityName")?.ToString();
+        var entityName = functionAttribute.NamedArguments.FirstOrDefault(
+            static argument => string.Equals(argument.Key, "EntityName", StringComparison.Ordinal)).Value.Value?.ToString();
 
         if (string.IsNullOrEmpty(entityName) is false)
         {
