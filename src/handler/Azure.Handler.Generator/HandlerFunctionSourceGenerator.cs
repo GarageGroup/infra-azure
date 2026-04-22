@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public sealed class HandlerFunctionSourceGenerator : HandlerFunctionSourceGeneratorBase
 {
     private static readonly IReadOnlyList<IFunctionDataProvider> DataProviders;

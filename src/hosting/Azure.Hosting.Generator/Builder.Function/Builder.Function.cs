@@ -1,3 +1,5 @@
+using PrimeFuncPack;
+
 namespace GarageGroup.Infra;
 
 partial class FunctionBuilder
@@ -9,15 +11,15 @@ partial class FunctionBuilder
         .AddUsing(
             "System.Threading.Tasks",
             "Microsoft.Azure.Functions.Worker")
-        .AppendCodeLine(
+        .AppendCodeLines(
             "public static class RefreshableTokenCredentialFunction")
         .BeginCodeBlock()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "[Function(\"RefreshAzureTokens\")]",
             "[FixedDelayRetry(5, \"00:00:10\")]",
             "public static Task RefreshAzureTokensAsync([TimerTrigger(\"0 */30 * * * *\")] object input, FunctionContext context)")
         .BeginLambda()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "context.RefreshAzureTokensAsync();")
         .EndLambda()
         .EndCodeBlock()

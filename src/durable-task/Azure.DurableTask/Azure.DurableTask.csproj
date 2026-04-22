@@ -1,31 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);IDE0130;CA1859</NoWarn>
+    <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask</AssemblyName>
-    <Version>0.10.0</Version>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azure.DurableTask.Generator\Azure.DurableTask.Generator.csproj">
+    <ProjectReference Include="../../handler/Azure.Handler/Azure.Handler.csproj" />
+    <ProjectReference Include="../Azure.DurableTask.Generator/Azure.DurableTask.Generator.csproj">
       <PrivateAssets>contentfiles; build</PrivateAssets>
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Handler" Version="0.17.0" />
-    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Activity.Contract" Version="0.2.0" />
-    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Entity.Contract" Version="0.1.0" />
-    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Instance.Contract" Version="0.2.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.3" />
+    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Activity.Contract" Version="1.0.0" />
+    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Entity.Contract" Version="1.0.0" />
+    <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Instance.Contract" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.16.3" />
     <PackageReference Include="PrimeFuncPack.Primitives.Strings" Version="3.0.0" />
   </ItemGroup>
 

@@ -15,129 +15,27 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
-
-     # Add NuGet Sources
+        dotnet-version: 10.0.x
 
     - name: Create Local NuGet Directory
       run: mkdir ~/nuget
 
-    - name: Add Local Nuget Source
-      run: dotnet nuget add source ~/nuget
+    - name: Restore Infra.Azure
+      run: dotnet restore ./*/Infra.Azure.slnx
 
-    - name: Add GarageGroup NuGet Source
-      run: >
-        dotnet nuget add source ${{ vars.GG_NUGET_SOURCE_URL }}
-        -n garage
-        -u ${{ secrets.GG_NUGET_SOURCE_USER_NAME }}
-        -p ${{ secrets.GG_NUGET_SOURCE_USER_PASSWORD }}
-        --store-password-in-clear-text
+    - name: Build Infra.Azure
+      run: dotnet build ./*/Infra.Azure.slnx --no-restore -c Release
 
-    # Azure.Hosting.Generator
+    - name: Test Infra.Azure
+      run: dotnet test ./*/Infra.Azure.slnx --no-restore -c Release
 
-    - name: Restore Azure.Hosting.Generator
-      run: dotnet restore ./src/*/*/Azure.Hosting.Generator.csproj
-
-    - name: Build Azure.Hosting.Generator
-      run: dotnet build ./src/*/*/Azure.Hosting.Generator.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Hosting.Generator
-      run: dotnet pack ./src/*/*/Azure.Hosting.Generator.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Hosting
-
-    - name: Restore Azure.Hosting
-      run: dotnet restore ./src/*/*/Azure.Hosting.csproj
-
-    - name: Build Azure.Hosting
-      run: dotnet build ./src/*/*/Azure.Hosting.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Hosting
-      run: dotnet pack ./src/*/*/Azure.Hosting.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Swagger
-
-    - name: Restore Azure.Swagger
-      run: dotnet restore ./src/*/*/Azure.Swagger.csproj
-
-    - name: Build Azure.Swagger
-      run: dotnet build ./src/*/*/Azure.Swagger.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Swagger
-      run: dotnet pack ./src/*/*/Azure.Swagger.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Endpoint.Generator
-
-    - name: Restore Azure.Endpoint.Generator
-      run: dotnet restore ./src/*/*/Azure.Endpoint.Generator.csproj
-
-    - name: Build Azure.Endpoint.Generator
-      run: dotnet build ./src/*/*/Azure.Endpoint.Generator.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Endpoint.Generator
-      run: dotnet pack ./src/*/*/Azure.Endpoint.Generator.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Endpoint
-
-    - name: Restore Azure.Endpoint
-      run: dotnet restore ./src/*/*/Azure.Endpoint.csproj
-
-    - name: Build Azure.Endpoint
-      run: dotnet build ./src/*/*/Azure.Endpoint.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Endpoint
-      run: dotnet pack ./src/*/*/Azure.Endpoint.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Handler.Generator
-
-    - name: Restore Azure.Handler.Generator
-      run: dotnet restore ./src/*/*/Azure.Handler.Generator.csproj
-
-    - name: Build Azure.Handler.Generator
-      run: dotnet build ./src/*/*/Azure.Handler.Generator.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Handler.Generator
-      run: dotnet pack ./src/*/*/Azure.Handler.Generator.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.Handler
-
-    - name: Restore Azure.Handler
-      run: dotnet restore ./src/*/*/Azure.Handler.csproj
-
-    - name: Build Azure.Handler
-      run: dotnet build ./src/*/*/Azure.Handler.csproj --no-restore  -c Release
-
-    - name: Pack Azure.Handler
-      run: dotnet pack ./src/*/*/Azure.Handler.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.DurableTask.Generator
-
-    - name: Restore Azure.DurableTask.Generator
-      run: dotnet restore ./src/*/*/Azure.DurableTask.Generator.csproj
-
-    - name: Build Azure.DurableTask.Generator
-      run: dotnet build ./src/*/*/Azure.DurableTask.Generator.csproj --no-restore  -c Release
-
-    - name: Pack Azure.DurableTask.Generator
-      run: dotnet pack ./src/*/*/Azure.DurableTask.Generator.csproj --no-restore -o ~/nuget  -c Release
-
-    # Azure.DurableTask
-
-    - name: Restore Azure.DurableTask
-      run: dotnet restore ./src/*/*/Azure.DurableTask.csproj
-
-    - name: Build Azure.DurableTask
-      run: dotnet build ./src/*/*/Azure.DurableTask.csproj --no-restore  -c Release
-
-    - name: Pack Azure.DurableTask
-      run: dotnet pack ./src/*/*/Azure.DurableTask.csproj --no-restore -o ~/nuget  -c Release
-
-    # Push
+    - name: Pack Infra.Azure
+      run: dotnet pack ./*/Infra.Azure.slnx --no-build -o ~/nuget -c Release
 
     - name: Push Packages
       if: ${{ github.ref == 'refs/heads/main' }}
       run: >
-        dotnet nuget push "../../../nuget/*.nupkg"
-        -s ${{ vars.GG_NUGET_SOURCE_URL }}
-        -k ${{ secrets.GG_NUGET_SOURCE_USER_PASSWORD }}
+        dotnet nuget push ~/nuget/*.nupkg
+        -s https://api.nuget.org/v3/index.json
+        -k ${{ secrets.NUGET_SECRET }}
         --skip-duplicate

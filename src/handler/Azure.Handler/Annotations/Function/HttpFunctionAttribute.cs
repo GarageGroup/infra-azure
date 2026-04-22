@@ -10,4 +10,16 @@ public sealed class HttpFunctionAttribute(string name, string method = HttpMetho
     public string? Route { get; set; }
 
     public HttpAuthorizationLevel AuthLevel { get; set; }
+
+    public string? ReadInputFunc { get; set; }
+
+    public Type? ReadInputFuncType { get; set; }
+
+    public string? CreateSuccessResponseFunc { get; set; }
+
+    public Type? CreateSuccessResponseFuncType { get; set; }
+
+    public string? CreateFailureResponseFunc { get; set; }
+
+    public Type? CreateFailureResponseFuncType { get; set; }
 }

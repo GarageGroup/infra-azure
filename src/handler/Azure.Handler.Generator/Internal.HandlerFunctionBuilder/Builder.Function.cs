@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
@@ -140,8 +141,14 @@ partial class HandlerFunctionBuilder
         var inputTypeName = resolver.InputType.DisplayedTypeName;
         var outputTypeName = resolver.OutputType.DisplayedTypeName;
 
-        var extensionsMethodLineBuilder = new StringBuilder(
-            $".{extensionsMethodName}<{handlerTypeName}, {inputTypeName}, {outputTypeName}>(");
+        var canInferHttpFunctionGenericArguments =
+            string.Equals("RunHttpFunctionAsync", extensionsMethodName, StringComparison.Ordinal) &&
+            string.IsNullOrEmpty(resolver.ReadInputFuncName) is false &&
+            string.IsNullOrEmpty(resolver.CreateSuccessResponseFuncName) is false;
+
+        var extensionsMethodLineBuilder = canInferHttpFunctionGenericArguments
+            ? new StringBuilder($".{extensionsMethodName}(")
+            : new StringBuilder($".{extensionsMethodName}<{handlerTypeName}, {inputTypeName}, {outputTypeName}>(");
 
         var extensionArguments = resolver.FunctionSpecificData.Arguments.Where(IsExtensionArgument).OrderBy(GetExtensionOrderNumber).ToArray();
         if (extensionArguments.Any() is false)
@@ -150,21 +157,37 @@ partial class HandlerFunctionBuilder
             return builder.AppendCodeLine(extensionsMethodLineBuilder.ToString());
         }
 
+        var extensionArgumentSourceCodes = extensionArguments.Select(GetArgumentSourceCode).ToList();
+        if (string.Equals("RunHttpFunctionAsync", extensionsMethodName, StringComparison.Ordinal) &&
+            (string.IsNullOrEmpty(resolver.ReadInputFuncName) is false ||
+             string.IsNullOrEmpty(resolver.CreateSuccessResponseFuncName) is false ||
+             string.IsNullOrEmpty(resolver.CreateFailureResponseFuncName) is false))
+        {
+            extensionArgumentSourceCodes.Insert(
+                1,
+                string.IsNullOrEmpty(resolver.ReadInputFuncName)
+                    ? "default"
+                    : GetStaticMethodSourceCode(resolver.ReadInputFuncType, resolver.ReadInputFuncName));
+            extensionArgumentSourceCodes.Insert(
+                2,
+                string.IsNullOrEmpty(resolver.CreateSuccessResponseFuncName)
+                    ? "default"
+                    : GetStaticMethodSourceCode(resolver.CreateSuccessResponseFuncType, resolver.CreateSuccessResponseFuncName));
+            extensionArgumentSourceCodes.Insert(
+                3,
+                string.IsNullOrEmpty(resolver.CreateFailureResponseFuncName)
+                    ? "default"
+                    : GetStaticMethodSourceCode(resolver.CreateFailureResponseFuncType, resolver.CreateFailureResponseFuncName));
+        }
+
         builder = builder.AppendCodeLine(extensionsMethodLineBuilder.ToString()).BeginArguments();
 
         var extensionLineBuilder = new StringBuilder();
-        for (var i = 0; i < extensionArguments.Length; i++)
+        for (var i = 0; i < extensionArgumentSourceCodes.Count; i++)
         {
-            var extensionArgument = extensionArguments[i];
-            extensionLineBuilder = extensionLineBuilder.Append(extensionArgument.ArgumentName);
+            extensionLineBuilder = extensionLineBuilder.Append(extensionArgumentSourceCodes[i]);
 
-            if (IsJsonRequestData(extensionArgument) && string.IsNullOrEmpty(resolver.JsonRootPath) is false)
-            {
-                var rootPathSourceCode = resolver.JsonRootPath.AsStringSourceCodeOrStringEmpty();
-                extensionLineBuilder = extensionLineBuilder.Append(".GetProperty(").Append(rootPathSourceCode).Append(')');
-            }
-
-            if (i < extensionArguments.Length - 1)
+            if (i < extensionArgumentSourceCodes.Count - 1)
             {
                 extensionLineBuilder = extensionLineBuilder.Append(", ");
             }
@@ -189,10 +212,33 @@ partial class HandlerFunctionBuilder
             =>
             argumentMetadata.ExtensionMethodArgumentOrder.GetValueOrDefault();
 
+        string GetArgumentSourceCode(FunctionArgumentMetadata extensionArgument)
+        {
+            var extensionLine = extensionArgument.ArgumentName;
+            if (IsJsonRequestData(extensionArgument) && string.IsNullOrEmpty(resolver.JsonRootPath) is false)
+            {
+                var rootPathSourceCode = resolver.JsonRootPath.AsStringSourceCodeOrStringEmpty();
+                extensionLine = extensionLine + ".GetProperty(" + rootPathSourceCode + ")";
+            }
+
+            return extensionLine;
+        }
+
         static bool IsJsonRequestData(FunctionArgumentMetadata argumentMetadata)
             =>
             string.Equals("JsonElement", argumentMetadata.TypeDisplayName, StringComparison.Ordinal) &&
             string.Equals("requestData", argumentMetadata.ArgumentName, StringComparison.Ordinal);
+
+        string GetStaticMethodSourceCode(DisplayedTypeData? type, string? methodName)
+        {
+            if (type is null || string.IsNullOrEmpty(methodName))
+            {
+                return "default";
+            }
+
+            builder = builder.AddUsings(type.AllNamespaces);
+            return $"{type.DisplayedTypeName}.{methodName}";
+        }
     }
 
     private static string BuildSourceCode(this FunctionAttributeMetadata functionAttribute)
