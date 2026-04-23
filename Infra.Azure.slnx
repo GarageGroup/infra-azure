@@ -1,0 +1,33 @@
+<Solution>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/dotnet.yml" />
+  </Folder>
+  <Folder Name="/durable-task/">
+    <Project Path="src/durable-task/Azure.DurableTask.Generator.Test/Azure.DurableTask.Generator.Test.csproj" />
+    <Project Path="src/durable-task/Azure.DurableTask.Generator/Azure.DurableTask.Generator.csproj" />
+    <Project Path="src/durable-task/Azure.DurableTask/Azure.DurableTask.csproj" />
+  </Folder>
+  <!-- TODO: Endpoint requires additional refinement; temporarily disabled and excluded from solution. -->
+  <!--
+  <Folder Name="/endpoint/">
+    <Project Path="src/endpoint/Azure.Endpoint.Generator/Azure.Endpoint.Generator.csproj" />
+    <Project Path="src/endpoint/Azure.Endpoint/Azure.Endpoint.csproj" />
+  </Folder>
+  -->
+  <Folder Name="/handler/">
+    <Project Path="src/handler/Azure.Handler/Azure.Handler.csproj" />
+    <Project Path="src/handler/Azure.Handler.Generator/Azure.Handler.Generator.csproj" />
+    <Project Path="src/handler/Azure.Handler.Generator.Test/Azure.Handler.Generator.Test.csproj" />
+  </Folder>
+  <Folder Name="/hosting/">
+    <Project Path="src/hosting/Azure.Hosting/Azure.Hosting.csproj" />
+    <Project Path="src/hosting/Azure.Hosting.Generator/Azure.Hosting.Generator.csproj" />
+    <Project Path="src/hosting/Azure.Hosting.Generator.Test/Azure.Hosting.Generator.Test.csproj" />
+  </Folder>
+  <!-- TODO: Swagger requires additional refinement; temporarily disabled and excluded from solution. -->
+  <!--
+  <Folder Name="/swagger/">
+    <Project Path="src/swagger/Azure.Swagger/Azure.Swagger.csproj" />
+  </Folder>
+  -->
+</Solution>
