@@ -126,6 +126,11 @@ partial class HandlerFuncExtensions
     {
         Debug.Assert(httpRequest is not null);
 
+        if (success is IHttpResponseProvider httpResponseProvider)
+        {
+            return httpResponseProvider.GetHttpResponse(httpRequest);
+        }
+
         if (success is Unit || success is null)
         {
             return httpRequest.CreateResponse(HttpStatusCode.NoContent);

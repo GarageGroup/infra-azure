@@ -18,11 +18,11 @@ internal sealed partial class OrchestrationInstanceApi : IOrchestrationInstanceA
         =>
         new(durableTaskClient, id);
 
-    private sealed class OrchestrationInstanceId : IOrchestrationInstanceId
+    private sealed class OrchestrationInstanceId : IOrchestrationInstanceId, IHttpResponseProvider
     {
         private readonly DurableTaskClient client;
 
-        public OrchestrationInstanceId(DurableTaskClient client, [AllowNull] string id)
+        internal OrchestrationInstanceId(DurableTaskClient client, [AllowNull] string id)
         {
             this.client = client;
             Id = id.OrEmpty();
