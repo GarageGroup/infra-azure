@@ -14,15 +14,11 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask.Generator</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(OutputPath)/GarageGroup.Infra.Azure.Handler.Generator.dll"
-          Pack="true"
-          PackagePath="analyzers/dotnet/cs"
-          Visible="false" />
     <None Include="$(PkgEarlyFuncPack_CodeAnalysis_Extensions)/lib/netstandard2.0/EarlyFuncPack.CodeAnalysis.Extensions.dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
