@@ -10,19 +10,25 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.Endpoint</AssemblyName>
-    <Version>0.16.0</Version>
+    <Version>0.17.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azure.Endpoint.Generator\Azure.Endpoint.Generator.csproj">
+    <ProjectReference Include="../../swagger/Azure.Swagger/Azure.Swagger.csproj" />
+    <ProjectReference Include="../Azure.Endpoint.Generator/Azure.Endpoint.Generator.csproj">
       <PrivateAssets>contentfiles; build</PrivateAssets>
       <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Azure.Swagger" Version="0.11.0" />
-    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.17.0" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.18.0" PrivateAssets="analyzers" />
   </ItemGroup>
+
+  <Target Name="RemoveEndpointCoreTransitiveAnalyzers" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.NuGetPackageId)' == 'GarageGroup.Infra.Endpoint.Generator'" />
+    </ItemGroup>
+  </Target>
 
 </Project>

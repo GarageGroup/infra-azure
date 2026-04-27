@@ -1,16 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
 internal static partial class SourceGeneratorExtensions
 {
-    internal static IReadOnlyCollection<FunctionProviderMetadata> GetFunctionProviderTypes(this GeneratorExecutionContext context)
+    internal static IReadOnlyCollection<FunctionProviderMetadata> GetFunctionProviderTypes(
+        this Compilation compilation, CancellationToken cancellationToken)
     {
-        var visitor = new ExportedTypesCollector(context.CancellationToken);
-        visitor.VisitNamespace(context.Compilation.GlobalNamespace);
+        var visitor = new ExportedTypesCollector(cancellationToken);
+        visitor.VisitNamespace(compilation.GlobalNamespace);
 
         return visitor.GetExportedTypes().Select(GetFunctionMetadata).NotNull().ToArray();
     }
@@ -100,10 +103,10 @@ internal static partial class SourceGeneratorExtensions
             resolverMethodName: methodSymbol.Name,
             functionMethodName: name.RemoveStandardEnd().SetLastWordAsFirst() + "Async",
             dependencyFieldName: name.FromLowerCase() + "Dependency",
-            functionName: functionAttribute.GetAttributeValue(0, "Name")?.ToString() ?? string.Empty,
+            functionName: functionAttribute.GetConstructorArgumentValue<string>(0) ?? string.Empty,
             obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
             arguments: [.. arguments, .. defaultArguments.Values],
-            isSwaggerHidden: functionAttribute.GetAttributePropertyValue("IsSwaggerHidden") is true);
+            isSwaggerHidden: functionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true);
 
         static bool IsFunctionAttribute(AttributeData attributeData)
             =>
@@ -127,14 +130,14 @@ internal static partial class SourceGeneratorExtensions
         }
 
         return new(
-            message: obsoleteAttributeData.GetAttributeValue(0)?.ToString(),
-            isError: obsoleteAttributeData.GetAttributeValue(1) as bool?,
-            diagnosticId: obsoleteAttributeData.GetAttributePropertyValue("DiagnosticId")?.ToString(),
-            urlFormat: obsoleteAttributeData.GetAttributePropertyValue("UrlFormat")?.ToString());
+            message: obsoleteAttributeData.GetConstructorArgumentValue<string?>(0),
+            isError: obsoleteAttributeData.GetConstructorArgumentValue<bool?>(1),
+            diagnosticId: obsoleteAttributeData.GetNamedArgumentValue<string?>("DiagnosticId"),
+            urlFormat: obsoleteAttributeData.GetNamedArgumentValue<string?>("UrlFormat"));
 
         static bool IsObsoleteAttribute(AttributeData attributeData)
             =>
-            attributeData.AttributeClass?.IsSystemType("ObsoleteAttribute") is true;
+            attributeData.AttributeClass?.IsType("ObsoleteAttribute", "System") is true;
     }
 
     private static INamedTypeSymbol GetEndpointTypeOrThrow(this IMethodSymbol resolverMethod)
@@ -160,24 +163,7 @@ internal static partial class SourceGeneratorExtensions
 
     private static int? GetAuthorizationLevel(this ISymbol symbol)
     {
-        var authorizationAttribute = symbol.GetAttributes().FirstOrDefault(IsSecurityAttribute);
-        if (authorizationAttribute is null)
-        {
-            return null;
-        }
-
-        var levelValue = authorizationAttribute.GetAttributeValue(0, "Level");
-        if (levelValue is null)
-        {
-            return null;
-        }
-
-        if (levelValue is not int level)
-        {
-            throw new InvalidOperationException($"An unexpected endpoint function authorization level: {levelValue}");
-        }
-
-        return level;
+        return symbol.GetAttributes().FirstOrDefault(IsSecurityAttribute)?.GetConstructorArgumentValue<int>(0);
 
         static bool IsSecurityAttribute(AttributeData attributeData)
             =>
@@ -186,7 +172,7 @@ internal static partial class SourceGeneratorExtensions
 
     private static IReadOnlyCollection<string> GetHttpMethodNames(this AttributeData? endpointAttribute)
     {
-        var method = endpointAttribute?.GetAttributeValue(0)?.ToString();
+        var method = endpointAttribute?.GetConstructorArgumentValue<string?>(0);
         if (string.IsNullOrEmpty(method))
         {
             return [];
@@ -197,7 +183,7 @@ internal static partial class SourceGeneratorExtensions
 
     private static string? GetHttpRoute(this AttributeData? endpointAttribute)
     {
-        var route = endpointAttribute?.GetAttributeValue(1)?.ToString();
+        var route = endpointAttribute?.GetConstructorArgumentValue<string?>(1);
         if (string.IsNullOrEmpty(route))
         {
             return null;
@@ -257,7 +243,7 @@ internal static partial class SourceGeneratorExtensions
                 return stringValue.AsStringSourceCodeOr();
             }
 
-            if (argument.Type?.GetEnumUnderlyingTypeOrDefault() is not null)
+            if (argument.Type?.GetEnumUnderlyingType() is not null)
             {
                 var enumType = argument.Type.GetDisplayedData();
                 namespaces.AddRange(enumType.AllNamespaces);

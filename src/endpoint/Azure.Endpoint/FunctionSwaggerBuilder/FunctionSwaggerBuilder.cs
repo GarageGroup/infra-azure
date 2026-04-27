@@ -1,5 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace GarageGroup.Infra.Endpoint;
 

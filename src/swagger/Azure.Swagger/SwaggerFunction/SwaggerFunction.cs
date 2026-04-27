@@ -8,7 +8,6 @@ using AzureFunctions.Extensions.Swashbuckle.SwashBuckle;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi;
 
 namespace GarageGroup.Infra;
 
@@ -64,18 +63,7 @@ public static partial class SwaggerFunction
         =>
         archive.GetEntry(entryName) ?? throw new InvalidOperationException("Entry '{entryName}' must be not null");
 
-    private static OpenApiFormat ParseOpenApiFormat(string? sourceValue)
-    {
-        if (string.IsNullOrEmpty(sourceValue))
-        {
-            return default;
-        }
-
-        if (YamlFormats.Contains(sourceValue, StringComparer.InvariantCultureIgnoreCase))
-        {
-            return OpenApiFormat.Yaml;
-        }
-
-        return OpenApiFormat.Json;
-    }
+    private static bool IsOpenApiYamlFormat(string? sourceValue)
+        =>
+        YamlFormats.Contains(sourceValue, StringComparer.InvariantCultureIgnoreCase);
 }

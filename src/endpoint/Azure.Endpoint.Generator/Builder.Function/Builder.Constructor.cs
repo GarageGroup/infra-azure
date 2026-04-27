@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Text;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
@@ -25,6 +26,6 @@ partial class FunctionBuilder
         }
 
         headerBuilder = headerBuilder.Append("class ").Append(provider.TypeName);
-        return sourceBuilder.AppendCodeLine(headerBuilder.ToString());
+        return sourceBuilder.AppendCodeLines(headerBuilder.ToString());
     }
 }

@@ -2,12 +2,17 @@ using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
-[Generator]
-internal sealed class FunctionSwaggerUIGenerator : ISourceGenerator
+[Generator(LanguageNames.CSharp)]
+internal sealed class FunctionSwaggerUIGenerator : IIncrementalGenerator
 {
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var swaggerUIType = context.GetFunctionSwaggerUIType();
+        var types = context.CompilationProvider.Select(SourceGeneratorExtensions.GetFunctionSwaggerUIType);
+        context.RegisterSourceOutput(types, AddSources);
+    }
+
+    private static void AddSources(SourceProductionContext context, FunctionSwaggerUIMetadata? swaggerUIType)
+    {
         if (swaggerUIType is null)
         {
             return;
@@ -15,10 +20,5 @@ internal sealed class FunctionSwaggerUIGenerator : ISourceGenerator
 
         var swaggerUISourceCode = swaggerUIType.BuildSwaggerUISourceCode();
         context.AddSource($"{swaggerUIType.TypeName}.g.cs", swaggerUISourceCode);
-    }
-
-    public void Initialize(GeneratorInitializationContext context)
-    {
-        // No initialization required for this one
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.OpenApi.Models;
+using System.Net.Http;
+using Microsoft.OpenApi;
 
 namespace GarageGroup.Infra.Endpoint;
 
@@ -17,21 +18,15 @@ partial class FunctionSwaggerBuilder
         var pathItem = GetOrCreatePathItem(document.Paths, endpointMetadata);
 
         var operationType = ToOperationType(endpointMetadata.Method);
+        var operations = GetOrCreateOperations(pathItem);
 
-        if (pathItem.Operations is null)
+        if (operations.ContainsKey(operationType) is false)
         {
-            pathItem.Operations = new Dictionary<OperationType, OpenApiOperation>
-            {
-                [operationType] = endpointMetadata.Operation
-            };
-        }
-        else if (pathItem.Operations.ContainsKey(operationType) is false)
-        {
-            pathItem.Operations.Add(operationType, endpointMetadata.Operation);
+            operations.Add(operationType, endpointMetadata.Operation);
         }
 
         document.Components ??= new();
-        document.Components.Schemas ??= new Dictionary<string, OpenApiSchema>(StringComparer.InvariantCultureIgnoreCase);
+        document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>(StringComparer.InvariantCultureIgnoreCase);
 
         foreach (var schema in endpointMetadata.Schemas)
         {
@@ -46,7 +41,7 @@ partial class FunctionSwaggerBuilder
         return this;
     }
 
-    private OpenApiPathItem GetOrCreatePathItem(OpenApiPaths paths, EndpointMetadata metadata)
+    private IOpenApiPathItem GetOrCreatePathItem(OpenApiPaths paths, EndpointMetadata metadata)
     {
         var path = context.GetRouteUrl(metadata.Route);
         if (paths.TryGetValue(path, out var pathItem))
@@ -64,18 +59,33 @@ partial class FunctionSwaggerBuilder
         return createdItem;
     }
 
-    private static OperationType ToOperationType(EndpointMethod method)
+    private static Dictionary<HttpMethod, OpenApiOperation> GetOrCreateOperations(IOpenApiPathItem pathItem)
+    {
+        if (pathItem.Operations is not null)
+        {
+            return pathItem.Operations;
+        }
+
+        if (pathItem is not OpenApiPathItem concretePathItem)
+        {
+            throw new InvalidOperationException($"Path item must be of type {typeof(OpenApiPathItem)} when operations are not initialized");
+        }
+
+        return concretePathItem.Operations = new Dictionary<HttpMethod, OpenApiOperation>();
+    }
+
+    private static HttpMethod ToOperationType(EndpointMethod method)
         =>
         method switch
         {
-            EndpointMethod.Get => OperationType.Get,
-            EndpointMethod.Post => OperationType.Post,
-            EndpointMethod.Put => OperationType.Put,
-            EndpointMethod.Delete => OperationType.Delete,
-            EndpointMethod.Options => OperationType.Options,
-            EndpointMethod.Head => OperationType.Head,
-            EndpointMethod.Patch => OperationType.Patch,
-            EndpointMethod.Trace => OperationType.Trace,
-            _ => OperationType.Post
+            EndpointMethod.Get => HttpMethod.Get,
+            EndpointMethod.Post => HttpMethod.Post,
+            EndpointMethod.Put => HttpMethod.Put,
+            EndpointMethod.Delete => HttpMethod.Delete,
+            EndpointMethod.Options => HttpMethod.Options,
+            EndpointMethod.Head => HttpMethod.Head,
+            EndpointMethod.Patch => HttpMethod.Patch,
+            EndpointMethod.Trace => HttpMethod.Trace,
+            _ => HttpMethod.Post
         };
 }

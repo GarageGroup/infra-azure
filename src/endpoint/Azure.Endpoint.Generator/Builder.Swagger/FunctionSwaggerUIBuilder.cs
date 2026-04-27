@@ -1,3 +1,5 @@
+using PrimeFuncPack;
+
 namespace GarageGroup.Infra;
 
 internal static class FunctionSwaggerUIBuilder
@@ -10,18 +12,18 @@ internal static class FunctionSwaggerUIBuilder
             "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
-        .AppendCodeLine(
+        .AppendCodeLines(
             $"public static class {swaggerUI.TypeName}")
         .BeginCodeBlock()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "[Function(\"GetSwaggerUI\")]",
             "public static HttpResponseData GetSwaggerUI(")
         .BeginArguments()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger\")] HttpRequestData request)")
         .EndArguments()
         .BeginLambda()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "request.BuildStandardSwaggerUiResponse();")
         .EndLambda()
         .EndCodeBlock()

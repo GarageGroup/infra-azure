@@ -1,32 +1,53 @@
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace GarageGroup.Infra;
 
-[Generator]
-internal sealed class FunctionSwaggerGenerator : ISourceGenerator
+[Generator(LanguageNames.CSharp)]
+internal sealed class FunctionSwaggerGenerator : IIncrementalGenerator
 {
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var swaggerType = context.GetFunctionSwaggerType();
-        if (swaggerType is null)
+        var types = context.CompilationProvider.Select(InnerGetSwaggerType);
+        context.RegisterSourceOutput(types, AddSources);
+
+        static SwaggerMetadata InnerGetSwaggerType(Compilation compilation, CancellationToken cancellationToken)
         {
-            return;
+            var swaggerType = compilation.GetFunctionSwaggerType(cancellationToken);
+            if (swaggerType is null)
+            {
+                return new();
+            }
+
+            return new()
+            {
+                SwaggerType = swaggerType,
+                ResolverTypes = compilation.GetFunctionProviderTypes(cancellationToken).SelectMany(GetResolverTypes).ToArray()
+            };
         }
-
-        var resolverTypes = context.GetFunctionProviderTypes().SelectMany(GetResolverTypes).ToArray();
-        var swaggerSourceCode = swaggerType.BuildSwaggerSourceCode(resolverTypes);
-
-        context.AddSource($"{swaggerType.TypeName}.g.cs", swaggerSourceCode);
 
         static IEnumerable<EndpointResolverMetadata> GetResolverTypes(FunctionProviderMetadata providerType)
             =>
             providerType.ResolverTypes;
     }
 
-    public void Initialize(GeneratorInitializationContext context)
+    private static void AddSources(SourceProductionContext context, SwaggerMetadata metadata)
     {
-        // No initialization required for this one
+        if (metadata.SwaggerType is null)
+        {
+            return;
+        }
+
+        var swaggerSourceCode = metadata.SwaggerType.BuildSwaggerSourceCode(metadata.ResolverTypes);
+        context.AddSource($"{metadata.SwaggerType.TypeName}.g.cs", swaggerSourceCode);
     }
+
+    private sealed class SwaggerMetadata
+    {
+        public FunctionSwaggerMetadata? SwaggerType { get; set; }
+
+        public IReadOnlyCollection<EndpointResolverMetadata>? ResolverTypes { get; set; }
+    };
 }
