@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
@@ -16,12 +17,12 @@ partial class FunctionBuilder
             "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
-        .AppendCodeLine(
+        .AppendCodeLines(
             $"partial class {provider.TypeName}")
         .BeginCodeBlock()
         .AppendObsoleteAttributeIfNecessary(
             resolver)
-        .AppendCodeLine(
+        .AppendCodeLines(
             $"[Function({resolver.FunctionName.AsStringSourceCodeOr()})]",
             $"public static Task<HttpResponseData> {resolver.FunctionMethodName}(")
         .BeginArguments()
@@ -62,14 +63,14 @@ partial class FunctionBuilder
         }
 
         attributeBuilder = attributeBuilder.Append(")]");
-        return builder.AddUsing("System").AppendCodeLine(attributeBuilder.ToString());
+        return builder.AddUsing("System").AppendCodeLines(attributeBuilder.ToString());
     }
 
     private static SourceBuilder AppendAzureFunctionBodyArguments(this SourceBuilder builder, EndpointResolverMetadata resolver)
     {
         if (resolver.Arguments.Any() is false)
         {
-            return builder.AppendCodeLine(")");
+            return builder.AppendCodeLines(")");
         }
 
         var arguments = resolver.Arguments.OrderBy(InnerGetOrderNumber).ToArray();
@@ -79,7 +80,7 @@ partial class FunctionBuilder
             var argument = arguments[i];
             var lineBuilder = new StringBuilder();
 
-            builder.AddUsings(argument.Namespaces);
+            builder.AddUsing(argument.Namespaces.ToArray());
             var attributesSourceCode = BuildAttributesSourceCode(argument.Attributes);
 
             if (string.IsNullOrEmpty(attributesSourceCode) is false)
@@ -92,7 +93,7 @@ partial class FunctionBuilder
             var finalSign = (i < arguments.Length - 1) ? ',' : ')';
             line = line.Append(finalSign);
 
-            builder.AppendCodeLine(line.ToString());
+            builder.AppendCodeLines(line.ToString());
         }
 
         return builder;
@@ -114,7 +115,7 @@ partial class FunctionBuilder
             {
                 var attribute = attributes[i];
 
-                builder = builder.AddUsings(attribute.Namespaces);
+                builder = builder.AddUsing(attribute.Namespaces.ToArray());
                 var attributeSourceCode = attribute.BuildSourceCode();
 
                 lineBuilder = lineBuilder.Append(attributeSourceCode);
@@ -138,11 +139,11 @@ partial class FunctionBuilder
         if (resolverArguments.Any() is false)
         {
             resolverLineBuilder = resolverLineBuilder.Append(')');
-            builder = builder.AppendCodeLine(resolverLineBuilder.ToString());
+            builder = builder.AppendCodeLines(resolverLineBuilder.ToString());
         }
         else
         {
-            builder = builder.AppendCodeLine(resolverLineBuilder.ToString()).BeginArguments();
+            builder = builder.AppendCodeLines(resolverLineBuilder.ToString()).BeginArguments();
             var resolverArgumentsLineBuilder = new StringBuilder();
 
             for (var i = 0; i < resolverArguments.Length; i++)
@@ -157,7 +158,7 @@ partial class FunctionBuilder
             }
 
             resolverArgumentsLineBuilder = resolverArgumentsLineBuilder.Append(')');
-            builder.AppendCodeLine(resolverArgumentsLineBuilder.ToString()).EndArguments();
+            builder.AppendCodeLines(resolverArgumentsLineBuilder.ToString()).EndArguments();
         }
 
         var extensionsMethodLineBuilder = new StringBuilder(".RunAzureFunctionAsync(");
@@ -166,10 +167,10 @@ partial class FunctionBuilder
         if (extensionArguments.Any() is false)
         {
             extensionsMethodLineBuilder = extensionsMethodLineBuilder.AppendLine(");");
-            return builder.AppendCodeLine(extensionsMethodLineBuilder.ToString());
+            return builder.AppendCodeLines(extensionsMethodLineBuilder.ToString());
         }
 
-        builder = builder.AppendCodeLine(extensionsMethodLineBuilder.ToString()).BeginArguments();
+        builder = builder.AppendCodeLines(extensionsMethodLineBuilder.ToString()).BeginArguments();
 
         var extensionLineBuilder = new StringBuilder();
         for (var i = 0; i < extensionArguments.Length; i++)
@@ -184,7 +185,7 @@ partial class FunctionBuilder
         }
 
         extensionLineBuilder = extensionLineBuilder.Append(')').Append(';');
-        return builder.AppendCodeLine(extensionLineBuilder.ToString()).EndArguments();
+        return builder.AppendCodeLines(extensionLineBuilder.ToString()).EndArguments();
 
         static bool IsResolverArgument(FunctionArgumentMetadata argumentMetadata)
             =>

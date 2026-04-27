@@ -8,27 +8,21 @@ namespace GarageGroup.Infra;
 partial class SwaggerFunction
 {
     public static HttpResponseData GetSwaggerUI(
-        this HttpRequestData request,
-        string swaggerSection = DefaultSwaggerSection,
-        string swaggerUrl = DefaultSwaggerUrl)
+        this HttpRequestData request, string swaggerSection = DefaultSwaggerSection, string swaggerUrl = DefaultSwaggerUrl)
     {
         ArgumentNullException.ThrowIfNull(request);
         return request.InnerBuildSwaggerUiResponse(request.FunctionContext.GetSwaggerOption(DefaultSwaggerSection) ?? new(), swaggerUrl);
     }
 
     public static HttpResponseData GetSwaggerUI(
-        this HttpRequestData request,
-        SwaggerOption swaggerOption,
-        string swaggerUrl = DefaultSwaggerUrl)
+        this HttpRequestData request, SwaggerOption swaggerOption, string swaggerUrl = DefaultSwaggerUrl)
     {
         ArgumentNullException.ThrowIfNull(request);
         return request.InnerBuildSwaggerUiResponse(swaggerOption ?? new(), swaggerUrl);
     }
 
     private static HttpResponseData InnerBuildSwaggerUiResponse(
-        this HttpRequestData request,
-        SwaggerOption swaggerOption,
-        string swaggerUrl)
+        this HttpRequestData request, SwaggerOption swaggerOption, string swaggerUrl)
     {
         var options = new SwaggerDocOptions
         {

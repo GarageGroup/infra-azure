@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
@@ -90,7 +91,7 @@ internal static partial class SourceGeneratorExtensions
 
     private static int GetAuthorizationLevel(AttributeData httpAttribute)
     {
-        var levelValue = httpAttribute.GetAttributePropertyValue("AuthLevel");
+        var levelValue = httpAttribute.GetNamedArgumentValue<object?>("AuthLevel");
         if (levelValue is null)
         {
             return default;

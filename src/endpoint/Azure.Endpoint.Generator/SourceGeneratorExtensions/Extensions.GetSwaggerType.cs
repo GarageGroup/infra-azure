@@ -1,15 +1,18 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
 partial class SourceGeneratorExtensions
 {
-    internal static FunctionSwaggerMetadata? GetFunctionSwaggerType(this GeneratorExecutionContext context)
+    internal static FunctionSwaggerMetadata? GetFunctionSwaggerType(
+        this Compilation compilation, CancellationToken cancellationToken)
     {
-        var visitor = new ExportedTypesCollector(context.CancellationToken);
-        visitor.VisitNamespace(context.Compilation.GlobalNamespace);
+        var visitor = new ExportedTypesCollector(cancellationToken);
+        visitor.VisitNamespace(compilation.GlobalNamespace);
 
         var swaggerTypes = visitor.GetExportedTypes().Select(GetSwaggerMetadata).NotNull().ToArray();
 

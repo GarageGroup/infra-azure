@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace GarageGroup.Infra.Endpoint;
 

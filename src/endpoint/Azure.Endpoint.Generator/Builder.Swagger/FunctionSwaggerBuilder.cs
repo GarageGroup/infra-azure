@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
+using PrimeFuncPack;
 
 namespace GarageGroup.Infra;
 
 internal static class FunctionSwaggerBuilder
 {
     internal static string BuildSwaggerSourceCode(
-        this FunctionSwaggerMetadata swagger, IReadOnlyCollection<EndpointResolverMetadata> resolverTypes)
+        this FunctionSwaggerMetadata swagger, IReadOnlyCollection<EndpointResolverMetadata>? resolverTypes)
         =>
         new SourceBuilder(
             swagger.Namespace)
@@ -15,31 +17,36 @@ internal static class FunctionSwaggerBuilder
             "GarageGroup.Infra.Endpoint",
             "Microsoft.Azure.Functions.Worker",
             "Microsoft.Azure.Functions.Worker.Http")
-        .AppendCodeLine(
+        .AppendCodeLines(
             $"public static class {swagger.TypeName}")
         .BeginCodeBlock()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "[Function(\"GetSwaggerDocument\")]",
             "public static Task<HttpResponseData> GetSwaggerDocumentAsync(")
         .BeginArguments()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/swagger.{format}\")] HttpRequestData request,")
-        .AppendCodeLine("string? format,")
-        .AppendCodeLine("CancellationToken cancellationToken)")
+        .AppendCodeLines("string? format,")
+        .AppendCodeLines("CancellationToken cancellationToken)")
         .EndArguments()
         .BeginLambda()
-        .AppendCodeLine(
+        .AppendCodeLines(
             "request.CreateStandardSwaggerBuilder()")
         .AppendEndpoints(
             resolverTypes)
-        .AppendCodeLine(
+        .AppendCodeLines(
             ".BuildResponseAsync(request, format, cancellationToken);")
         .EndLambda()
         .EndCodeBlock()
         .Build();
 
-    private static SourceBuilder AppendEndpoints(this SourceBuilder builder, IReadOnlyCollection<EndpointResolverMetadata> resolverTypes)
+    private static SourceBuilder AppendEndpoints(this SourceBuilder builder, IReadOnlyCollection<EndpointResolverMetadata>? resolverTypes)
     {
+        if (resolverTypes?.Count is not > 0)
+        {
+            return builder;
+        }
+
         foreach (var resolver in resolverTypes)
         {
             if (resolver.IsSwaggerHidden)
@@ -47,7 +54,7 @@ internal static class FunctionSwaggerBuilder
                 continue;
             }
 
-            builder = builder.AddUsings(resolver.EndpointType.AllNamespaces).AppendCodeLine(
+            builder = builder.AddUsing(resolver.EndpointType.AllNamespaces.ToArray()).AppendCodeLines(
                 $".AddFunctionEndpoint({resolver.EndpointType.DisplayedTypeName}.GetEndpointMetadata())");
         }
 

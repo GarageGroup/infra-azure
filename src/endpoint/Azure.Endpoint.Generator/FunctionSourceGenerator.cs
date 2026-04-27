@@ -2,26 +2,24 @@ using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
-[Generator]
-internal sealed class FunctionSourceGenerator : ISourceGenerator
+[Generator(LanguageNames.CSharp)]
+internal sealed class FunctionSourceGenerator : IIncrementalGenerator
 {
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        foreach (var providerType in context.GetFunctionProviderTypes())
-        {
-            var constructorSourceCode = providerType.BuildConstructorSourceCode();
-            context.AddSource($"{providerType.TypeName}.g.cs", constructorSourceCode);
-
-            foreach (var resolverType in providerType.ResolverTypes)
-            {
-                var functionSourceCode = providerType.BuildFunctionSourceCode(resolverType);
-                context.AddSource($"{providerType.TypeName}.{resolverType.FunctionMethodName}.g.cs", functionSourceCode);
-            }
-        }
+        var types = context.CompilationProvider.SelectMany(SourceGeneratorExtensions.GetFunctionProviderTypes);
+        context.RegisterSourceOutput(types, AddSources);
     }
 
-    public void Initialize(GeneratorInitializationContext context)
+    private static void AddSources(SourceProductionContext context, FunctionProviderMetadata providerType)
     {
-        // No initialization required for this one
+        var constructorSourceCode = providerType.BuildConstructorSourceCode();
+        context.AddSource($"{providerType.TypeName}.g.cs", constructorSourceCode);
+
+        foreach (var resolverType in providerType.ResolverTypes)
+        {
+            var functionSourceCode = providerType.BuildFunctionSourceCode(resolverType);
+            context.AddSource($"{providerType.TypeName}.{resolverType.FunctionMethodName}.g.cs", functionSourceCode);
+        }
     }
 }
