@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="0.18.0" PrivateAssets="analyzers" />
+    <PackageReference Include="GarageGroup.Infra.Endpoint.Core" Version="1.0.0" PrivateAssets="analyzers" />
   </ItemGroup>
 
   <Target Name="RemoveEndpointCoreTransitiveAnalyzers" BeforeTargets="CoreCompile">
