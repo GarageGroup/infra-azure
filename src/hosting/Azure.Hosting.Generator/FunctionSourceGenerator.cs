@@ -1,16 +1,25 @@
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
 [Generator(LanguageNames.CSharp)]
-internal sealed class FunctionSwaggerGenerator : IIncrementalGenerator
+internal sealed class FunctionSourceGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(InnerBuildFunctionSourceCode);
+        var functionData = context.CompilationProvider.Select(SourceGeneratorExtensions.GetFunctionData);
+        context.RegisterSourceOutput(functionData, AddSources);
+    }
 
-        static void InnerBuildFunctionSourceCode(IncrementalGeneratorPostInitializationContext context)
-            =>
-            context.AddSource("RefreshableTokenCredentialFunction.g.cs", FunctionBuilder.BuildFunctionSourceCode());
+    private static void AddSources(SourceProductionContext context, FunctionData? functionData)
+    {
+        if (functionData is null)
+        {
+            return;
+        }
+
+        var sourceCode = FunctionBuilder.BuildFunctionSourceCode(functionData);
+        context.AddSource("RefreshableTokenCredentialFunction.g.cs", sourceCode);
     }
 }
