@@ -5,25 +5,11 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Xunit;
 
 namespace GarageGroup.Infra.Azure.Hosting.Generator.Test;
 
-public static partial class FunctionSwaggerGeneratorTest
+public static partial class FunctionSourceGeneratorTest
 {
-    public static TheoryData<string> SourceCodes
-        =>
-        [
-            string.Empty,
-            """
-            namespace Some.Test;
-
-            public static class Stub
-            {
-            }
-            """
-        ];
-
     private static readonly IReadOnlyList<MetadataReference> MetadataReferences
         =
         [
@@ -54,7 +40,7 @@ public static partial class FunctionSwaggerGeneratorTest
     private static ISourceGenerator CreateGenerator()
     {
         var assembly = Assembly.Load("GarageGroup.Infra.Azure.Hosting.Generator");
-        var generatorType = assembly.GetType("GarageGroup.Infra.FunctionSwaggerGenerator", throwOnError: true)!;
+        var generatorType = assembly.GetType("GarageGroup.Infra.FunctionSourceGenerator", throwOnError: true)!;
         var generator = Activator.CreateInstance(generatorType, nonPublic: true)!;
 
         return generator switch
