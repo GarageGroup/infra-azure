@@ -88,7 +88,7 @@ partial class FunctionSourceGeneratorTest
         [
             new(
                 string.Empty,
-                "[TimerTrigger(\"0 */50 * * * *\")]"),
+                "[TimerTrigger(\"0 */30 * * * *\")]"),
             new(
                 """
                 namespace Some.Test;
@@ -97,7 +97,7 @@ partial class FunctionSourceGeneratorTest
                 {
                 }
                 """,
-                "[TimerTrigger(\"0 */50 * * * *\")]"),
+                "[TimerTrigger(\"0 */30 * * * *\")]"),
             new(
                 """
                 using GarageGroup.Infra;
@@ -133,7 +133,7 @@ partial class FunctionSourceGeneratorTest
                 {
                 }
                 """,
-                "[TimerTrigger(\"0 */50 * * * *\", UseMonitor = true)]"),
+                "[TimerTrigger(\"0 */30 * * * *\", UseMonitor = true)]"),
             new(
                 """
                 [assembly: GarageGroup.Infra.RefreshableTokenCredential("   ", RunOnStartup = true)]
@@ -143,6 +143,6 @@ partial class FunctionSourceGeneratorTest
                 {
                 }
                 """,
-                "[TimerTrigger(\"0 */50 * * * *\", RunOnStartup = true)]")
+                "[TimerTrigger(\"0 */30 * * * *\", RunOnStartup = true)]")
         ];
 }

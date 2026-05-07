@@ -5,7 +5,7 @@ namespace GarageGroup.Infra;
 
 internal static partial class SourceGeneratorExtensions
 {
-    private const string DefaultScheduleExpression = "0 */50 * * * *";
+    private const string DefaultScheduleExpression = "0 */30 * * * *";
 
     private static bool IsRefreshableTokenCredentialAttribute(AttributeData attributeData)
         =>
