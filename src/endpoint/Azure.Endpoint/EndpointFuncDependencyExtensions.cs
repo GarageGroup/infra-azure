@@ -15,7 +15,7 @@ public static class EndpointFuncDependencyExtensions
 {
     public static Task<HttpResponseData> RunAzureFunctionAsync<TEndpoint>(
         this Dependency<TEndpoint> dependency, HttpRequestData request, CancellationToken cancellationToken = default)
-        where TEndpoint : IEndpoint
+        where TEndpoint : IEndpointInvokeSupplier
     {
         ArgumentNullException.ThrowIfNull(dependency);
         ArgumentNullException.ThrowIfNull(request);
@@ -29,7 +29,7 @@ public static class EndpointFuncDependencyExtensions
     }
 
     public static async Task<HttpResponseData> InvokeAzureFunctionAsync(
-        this IEndpoint endpoint, HttpRequestData request, CancellationToken cancellationToken)
+        this IEndpointInvokeSupplier endpoint, HttpRequestData request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(endpoint);
 
@@ -73,7 +73,10 @@ public static class EndpointFuncDependencyExtensions
             queryParameters: HttpUtility.ParseQueryString(request.Url.Query).AsEnumerable().ToArray(),
             routeValues: request.FunctionContext.BindingContext.BindingData?.Select(MapBindingData).ToArray(),
             user: new(request.Identities),
-            body: request.Body);
+            body: request.Body)
+        {
+            OperationId = request.FunctionContext.FunctionDefinition.Name
+        };
 
         static KeyValuePair<string, string?> MapHeader(KeyValuePair<string, IEnumerable<string>> pair)
             =>

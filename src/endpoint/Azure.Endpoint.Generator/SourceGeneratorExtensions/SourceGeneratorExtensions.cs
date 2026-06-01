@@ -16,6 +16,8 @@ internal static partial class SourceGeneratorExtensions
 
     private const string ResolverStandardEnd = "Endpoint";
 
+    private const int DefaultFunctionAuthorizationLevel = 2;
+
     private static IReadOnlyList<FunctionArgumentMetadata> BuildDefaultArguments(int authorizationLevel, AttributeData? endpointAttribute)
     {
         return
@@ -94,7 +96,7 @@ internal static partial class SourceGeneratorExtensions
         var levelValue = httpAttribute.GetNamedArgumentValue<object?>("AuthLevel");
         if (levelValue is null)
         {
-            return default;
+            return DefaultFunctionAuthorizationLevel;
         }
 
         if (levelValue is not int level)

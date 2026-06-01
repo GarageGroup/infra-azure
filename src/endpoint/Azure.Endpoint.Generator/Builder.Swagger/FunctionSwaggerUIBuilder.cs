@@ -20,7 +20,7 @@ internal static class FunctionSwaggerUIBuilder
             "public static HttpResponseData GetSwaggerUI(")
         .BeginArguments()
         .AppendCodeLines(
-            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger\")] HttpRequestData request)")
+            $"[HttpTrigger({swaggerUI.AuthorizationLevel.ToAuthorizationLevelSourceCode()}, \"GET\", Route = \"swagger\")] HttpRequestData request)")
         .EndArguments()
         .BeginLambda()
         .AppendCodeLines(
@@ -28,4 +28,16 @@ internal static class FunctionSwaggerUIBuilder
         .EndLambda()
         .EndCodeBlock()
         .Build();
+
+    private static string ToAuthorizationLevelSourceCode(this int authorizationLevel)
+        =>
+        authorizationLevel switch
+        {
+            0 => "AuthorizationLevel.Anonymous",
+            1 => "AuthorizationLevel.User",
+            2 => "AuthorizationLevel.Function",
+            3 => "AuthorizationLevel.System",
+            4 => "AuthorizationLevel.Admin",
+            _ => "(AuthorizationLevel)" + authorizationLevel
+        };
 }
