@@ -30,6 +30,7 @@ jobs:
       run: dotnet test --no-build --no-restore -c Release
 
     - name: Pack slnx
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: dotnet pack --no-build --no-restore -o ~/nuget -c Release
 
     - name: Push Packages
