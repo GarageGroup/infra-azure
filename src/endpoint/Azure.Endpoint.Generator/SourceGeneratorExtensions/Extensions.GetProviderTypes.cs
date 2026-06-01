@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using PrimeFuncPack;
@@ -26,7 +27,7 @@ internal static partial class SourceGeneratorExtensions
         }
 
         var typeAuthorizationLevel = typeSymbol.GetAuthorizationLevel();
-        var resolverTypes = typeSymbol.GetMembers().OfType<IMethodSymbol>().Select(InnerGetResolverMetadata).NotNull().ToArray();
+        var resolverTypes = typeSymbol.GetMembers().OfType<IMethodSymbol>().SelectMany(InnerGetResolverMetadata).ToArray();
 
         if (resolverTypes.Length is 0)
         {
@@ -39,17 +40,25 @@ internal static partial class SourceGeneratorExtensions
             providerType: typeSymbol.GetDisplayedData(),
             resolverTypes: resolverTypes);
 
-        EndpointResolverMetadata? InnerGetResolverMetadata(IMethodSymbol methodSymbol)
+        IReadOnlyCollection<EndpointResolverMetadata> InnerGetResolverMetadata(IMethodSymbol methodSymbol)
             =>
             GetResolverMetadata(methodSymbol, typeAuthorizationLevel);
     }
 
-    private static EndpointResolverMetadata? GetResolverMetadata(IMethodSymbol methodSymbol, int? typeAuthorizationLevel)
+    private static IReadOnlyCollection<EndpointResolverMetadata> GetResolverMetadata(IMethodSymbol methodSymbol, int? typeAuthorizationLevel)
     {
-        var functionAttribute = methodSymbol.GetAttributes().FirstOrDefault(IsFunctionAttribute);
-        if (functionAttribute is null)
+        var functionAttribute = methodSymbol.GetAttributes().FirstOrDefault(IsEndpointFunctionAttribute);
+        var setFunctionAttribute = methodSymbol.GetAttributes().FirstOrDefault(IsEndpointSetFunctionAttribute);
+
+        if (functionAttribute is null && setFunctionAttribute is null)
         {
-            return null;
+            return [];
+        }
+
+        if (functionAttribute is not null && setFunctionAttribute is not null)
+        {
+            throw methodSymbol.CreateInvalidMethodException(
+                $"must have only one of {DefaultNamespace}.EndpointFunctionAttribute or {DefaultNamespace}.EndpointSetFunctionAttribute");
         }
 
         if (methodSymbol.IsStatic is false)
@@ -67,13 +76,39 @@ internal static partial class SourceGeneratorExtensions
             throw methodSymbol.CreateInvalidMethodException("must not have generic arguments");
         }
 
+        return functionAttribute switch
+        {
+            not null => [GetEndpointResolverMetadata(methodSymbol, functionAttribute, typeAuthorizationLevel)],
+            _ => GetEndpointSetResolverMetadata(methodSymbol, setFunctionAttribute!, typeAuthorizationLevel)
+        };
+
+        static bool IsEndpointFunctionAttribute(AttributeData attributeData)
+            =>
+            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionAttribute") is true;
+
+        static bool IsEndpointSetFunctionAttribute(AttributeData attributeData)
+            =>
+            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointSetFunctionAttribute") is true;
+    }
+
+    private static EndpointResolverMetadata GetEndpointResolverMetadata(
+        IMethodSymbol methodSymbol, AttributeData functionAttribute, int? typeAuthorizationLevel)
+    {
         var endpointType = methodSymbol.GetEndpointTypeOrThrow();
         var name = methodSymbol.Name.RemoveStandardStart();
 
-        var endpointAttribute = endpointType.GetAttributes().FirstOrDefault(IsEndpointMetadataAttribute);
-        var authorizationLevel = methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? default;
+        var endpointMetadataAttribute = endpointType.GetAttributes().FirstOrDefault(IsEndpointMetadataAttribute);
+        var endpointOperationMetadataAttribute = endpointType.GetAttributes().FirstOrDefault(IsEndpointOperationMetadataAttribute);
+        var functionName = methodSymbol.GetFunctionNameOrThrow(
+            functionAttribute,
+            endpointMetadataAttribute,
+            endpointOperationMetadataAttribute);
 
-        var defaultArguments = BuildDefaultArguments(authorizationLevel, endpointAttribute).ToDictionary(GetTypeName);
+        var authorizationLevel = methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? DefaultFunctionAuthorizationLevel;
+
+        var defaultArguments = BuildDefaultArguments(
+            authorizationLevel,
+            endpointOperationMetadataAttribute ?? endpointMetadataAttribute).ToDictionary(GetTypeName);
         var parameterArguments = methodSymbol.Parameters.Select(GetArgumentMetadata).ToArray();
 
         var arguments = new List<FunctionArgumentMetadata>(parameterArguments.Length);
@@ -103,23 +138,164 @@ internal static partial class SourceGeneratorExtensions
             resolverMethodName: methodSymbol.Name,
             functionMethodName: name.RemoveStandardEnd().SetLastWordAsFirst() + "Async",
             dependencyFieldName: name.FromLowerCase() + "Dependency",
-            functionName: functionAttribute.GetConstructorArgumentValue<string>(0) ?? string.Empty,
+            functionName: functionName,
             obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
             arguments: [.. arguments, .. defaultArguments.Values],
-            isSwaggerHidden: functionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true);
-
-        static bool IsFunctionAttribute(AttributeData attributeData)
-            =>
-            attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionAttribute") is true;
-
-        static bool IsEndpointMetadataAttribute(AttributeData attributeData)
-            =>
-            attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true;
+            isSwaggerHidden: functionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true,
+            isEndpointSetOperation: false,
+            endpointOperationId: null);
 
         static string GetTypeName(FunctionArgumentMetadata argument)
             =>
             argument.TypeDisplayName;
     }
+
+    private static IReadOnlyCollection<EndpointResolverMetadata> GetEndpointSetResolverMetadata(
+        IMethodSymbol methodSymbol, AttributeData setFunctionAttribute, int? typeAuthorizationLevel)
+    {
+        var endpointSetType = methodSymbol.GetEndpointSetTypeOrThrow();
+        var operationMetadataAttributes = endpointSetType.GetAttributes().Where(IsEndpointOperationMetadataAttribute).ToArray();
+
+        if (operationMetadataAttributes.Length is 0)
+        {
+            throw methodSymbol.CreateInvalidMethodException(
+                $"must resolve a type that has at least one {EndpointNamespace}.EndpointOperationMetadataAttribute");
+        }
+
+        var name = methodSymbol.Name.RemoveStandardStart();
+        var authorizationLevel = methodSymbol.GetAuthorizationLevel() ?? typeAuthorizationLevel ?? DefaultFunctionAuthorizationLevel;
+        var parameterArguments = methodSymbol.Parameters.Select(GetArgumentMetadata).ToArray();
+        var usedMethodNames = new HashSet<string>(StringComparer.Ordinal);
+
+        var resolverMetadata = new List<EndpointResolverMetadata>(operationMetadataAttributes.Length);
+
+        foreach (var operationMetadataAttribute in operationMetadataAttributes)
+        {
+            var operationId = operationMetadataAttribute.GetOperationId();
+            if (string.IsNullOrWhiteSpace(operationId))
+            {
+                throw methodSymbol.CreateInvalidMethodException(
+                    $"{EndpointNamespace}.EndpointOperationMetadataAttribute operationId must not be null or whitespace");
+            }
+
+            var endpointOperationId = operationId!;
+            var defaultArguments = BuildDefaultArguments(authorizationLevel, operationMetadataAttribute).ToDictionary(GetTypeName);
+            var arguments = new List<FunctionArgumentMetadata>(parameterArguments.Length);
+
+            foreach (var parameterArgument in parameterArguments)
+            {
+                if (defaultArguments.TryGetValue(parameterArgument.TypeDisplayName, out var defaultArgument) is false)
+                {
+                    arguments.Add(parameterArgument);
+                    continue;
+                }
+
+                arguments.Add(
+                    new(
+                        namespaces: parameterArgument.Namespaces,
+                        typeDisplayName: parameterArgument.TypeDisplayName,
+                        argumentName: defaultArgument.ArgumentName,
+                        orderNumber: defaultArgument.OrderNumber,
+                        extensionMethodArgumentOrder: defaultArgument.ExtensionMethodArgumentOrder,
+                        resolverMethodArgumentOrder: parameterArgument.ResolverMethodArgumentOrder,
+                        attributes: parameterArgument.Attributes));
+
+                defaultArguments.Remove(parameterArgument.TypeDisplayName);
+            }
+
+            var methodName = endpointOperationId.BuildFunctionMethodName();
+            if (usedMethodNames.Add(methodName) is false)
+            {
+                var index = resolverMetadata.Count + 1;
+                methodName = $"{methodName}{index}";
+            }
+
+            resolverMetadata.Add(
+                new(
+                    endpointType: endpointSetType.GetDisplayedData(),
+                    resolverMethodName: methodSymbol.Name,
+                    functionMethodName: methodName + "Async",
+                    dependencyFieldName: name.FromLowerCase() + "Dependency",
+                    functionName: endpointOperationId,
+                    obsoleteData: endpointSetType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
+                    arguments: [.. arguments, .. defaultArguments.Values],
+                    isSwaggerHidden: setFunctionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true,
+                    isEndpointSetOperation: true,
+                    endpointOperationId: endpointOperationId));
+        }
+
+        return resolverMetadata;
+
+        static string GetTypeName(FunctionArgumentMetadata argument)
+            =>
+            argument.TypeDisplayName;
+    }
+
+    private static string BuildFunctionMethodName(this string operationId)
+    {
+        if (string.IsNullOrWhiteSpace(operationId))
+        {
+            return "Invoke";
+        }
+
+        var isPreviousSeparator = true;
+        var builder = new StringBuilder(operationId.Length);
+
+        foreach (var character in operationId)
+        {
+            if (char.IsLetterOrDigit(character) is false)
+            {
+                isPreviousSeparator = true;
+                continue;
+            }
+
+            var outputCharacter = isPreviousSeparator ? char.ToUpperInvariant(character) : character;
+            builder.Append(outputCharacter);
+
+            isPreviousSeparator = false;
+        }
+
+        if (builder.Length is 0)
+        {
+            return "Invoke";
+        }
+
+        if (char.IsDigit(builder[0]))
+        {
+            _ = builder.Insert(0, '_');
+        }
+
+        return builder.ToString();
+    }
+
+    private static INamedTypeSymbol GetEndpointSetTypeOrThrow(this IMethodSymbol resolverMethod)
+    {
+        var returnType = resolverMethod.ReturnType as INamedTypeSymbol;
+        if (returnType?.IsType("PrimeFuncPack", "Dependency") is not true || returnType?.TypeArguments.Length is not 1)
+        {
+            throw resolverMethod.CreateInvalidMethodException("return type must be PrimeFuncPack.Dependency<TEndpointSet>");
+        }
+
+        var endpointSetType = returnType.TypeArguments[0] as INamedTypeSymbol;
+        if (endpointSetType?.AllInterfaces.Any(IsEndpointSetType) is not true)
+        {
+            throw resolverMethod.CreateInvalidMethodException($"must resolve a type that implements {EndpointNamespace}.IEndpointSet");
+        }
+
+        return endpointSetType;
+
+        static bool IsEndpointSetType(INamedTypeSymbol typeSymbol)
+            =>
+            typeSymbol.IsType(EndpointNamespace, "IEndpointSet");
+    }
+
+    private static bool IsEndpointMetadataAttribute(AttributeData attributeData)
+        =>
+        attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true;
+
+    private static bool IsEndpointOperationMetadataAttribute(AttributeData attributeData)
+        =>
+        attributeData.AttributeClass?.IsType(EndpointNamespace, "EndpointOperationMetadataAttribute") is true;
 
     private static ObsoleteData? GetObsoleteData(this ISymbol symbol)
     {
@@ -170,9 +346,67 @@ internal static partial class SourceGeneratorExtensions
             attributeData.AttributeClass?.IsType(DefaultNamespace, "EndpointFunctionSecurityAttribute") is true;
     }
 
+    private static string GetFunctionNameOrThrow(
+        this IMethodSymbol methodSymbol,
+        AttributeData functionAttribute,
+        AttributeData? endpointMetadataAttribute,
+        AttributeData? endpointOperationMetadataAttribute)
+    {
+        var functionName = functionAttribute.GetConstructorArgumentValue<string?>(0);
+        var operationId = endpointOperationMetadataAttribute.GetOperationId();
+
+        if (string.IsNullOrWhiteSpace(functionName))
+        {
+            if (string.IsNullOrWhiteSpace(operationId))
+            {
+                throw methodSymbol.CreateInvalidMethodException(
+                    $"must have function name in {DefaultNamespace}.EndpointFunctionAttribute(name) " +
+                    $"or {EndpointNamespace}.EndpointOperationMetadataAttribute");
+            }
+
+            return operationId ?? string.Empty;
+        }
+
+        if (string.IsNullOrWhiteSpace(operationId) is false)
+        {
+            return operationId ?? string.Empty;
+        }
+
+        if (endpointMetadataAttribute is not null)
+        {
+            return functionName ?? string.Empty;
+        }
+
+        return functionName ?? string.Empty;
+    }
+
+    private static string? GetOperationId(this AttributeData? endpointAttribute)
+    {
+        if (endpointAttribute?.AttributeClass?.IsType(EndpointNamespace, "EndpointOperationMetadataAttribute") is not true)
+        {
+            return null;
+        }
+
+        var operationId = endpointAttribute.GetConstructorArgumentValue<string?>(0);
+        if (string.IsNullOrWhiteSpace(operationId))
+        {
+            return null;
+        }
+
+        return operationId;
+    }
+
     private static IReadOnlyCollection<string> GetHttpMethodNames(this AttributeData? endpointAttribute)
     {
-        var method = endpointAttribute?.GetConstructorArgumentValue<string?>(0);
+        var methodArgumentIndex = endpointAttribute switch
+        {
+            null => (int?)null,
+            _ when endpointAttribute.AttributeClass?.IsType(EndpointNamespace, "EndpointOperationMetadataAttribute") is true => 1,
+            _ when endpointAttribute.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true => 0,
+            _ => null
+        };
+
+        var method = endpointAttribute?.GetConstructorArgumentValue<string?>(methodArgumentIndex ?? 0);
         if (string.IsNullOrEmpty(method))
         {
             return [];
@@ -183,7 +417,15 @@ internal static partial class SourceGeneratorExtensions
 
     private static string? GetHttpRoute(this AttributeData? endpointAttribute)
     {
-        var route = endpointAttribute?.GetConstructorArgumentValue<string?>(1);
+        var routeArgumentIndex = endpointAttribute switch
+        {
+            null => (int?)null,
+            _ when endpointAttribute.AttributeClass?.IsType(EndpointNamespace, "EndpointOperationMetadataAttribute") is true => 2,
+            _ when endpointAttribute.AttributeClass?.IsType(EndpointNamespace, "EndpointMetadataAttribute") is true => 1,
+            _ => null
+        };
+
+        var route = endpointAttribute?.GetConstructorArgumentValue<string?>(routeArgumentIndex ?? 0);
         if (string.IsNullOrEmpty(route))
         {
             return null;

@@ -25,7 +25,7 @@ internal static class FunctionSwaggerBuilder
             "public static Task<HttpResponseData> GetSwaggerDocumentAsync(")
         .BeginArguments()
         .AppendCodeLines(
-            "[HttpTrigger(AuthorizationLevel.Anonymous, \"GET\", Route = \"swagger/swagger.{format}\")] HttpRequestData request,")
+            $"[HttpTrigger({swagger.AuthorizationLevel.ToAuthorizationLevelSourceCode()}, \"GET\", Route = \"swagger/swagger.{{format}}\")] HttpRequestData request,")
         .AppendCodeLines("string? format,")
         .AppendCodeLines("CancellationToken cancellationToken)")
         .EndArguments()
@@ -42,22 +42,52 @@ internal static class FunctionSwaggerBuilder
 
     private static SourceBuilder AppendEndpoints(this SourceBuilder builder, IReadOnlyCollection<EndpointResolverMetadata>? resolverTypes)
     {
-        if (resolverTypes?.Count is not > 0)
+        var swaggerTypes = resolverTypes?.Where(IsNotSwaggerHidden).ToArray();
+        if (swaggerTypes?.Length is not > 0)
         {
             return builder;
         }
 
-        foreach (var resolver in resolverTypes)
-        {
-            if (resolver.IsSwaggerHidden)
+        var groups = swaggerTypes.GroupBy(
+            static resolver => new
             {
+                EndpointTypeNamespace = string.Join(".", resolver.EndpointType.AllNamespaces),
+                EndpointTypeDisplayedName = resolver.EndpointType.DisplayedTypeName,
+                resolver.IsEndpointSetOperation
+            });
+
+        foreach (var group in groups)
+        {
+            builder = builder.AddUsing(group.First().EndpointType.AllNamespaces.ToArray());
+
+            if (group.Key.IsEndpointSetOperation is false)
+            {
+                builder = builder.AppendCodeLines(
+                    $".AddFunctionEndpoint({group.Key.EndpointTypeDisplayedName}.GetEndpointMetadata())");
+
                 continue;
             }
 
-            builder = builder.AddUsing(resolver.EndpointType.AllNamespaces.ToArray()).AppendCodeLines(
-                $".AddFunctionEndpoint({resolver.EndpointType.DisplayedTypeName}.GetEndpointMetadata())");
+            builder = builder.AppendCodeLines(
+                $".AddFunctionEndpoints({group.Key.EndpointTypeDisplayedName}.Metadata)");
         }
 
         return builder;
+
+        static bool IsNotSwaggerHidden(EndpointResolverMetadata resolver)
+            =>
+            resolver.IsSwaggerHidden is false;
     }
+
+    private static string ToAuthorizationLevelSourceCode(this int authorizationLevel)
+        =>
+        authorizationLevel switch
+        {
+            0 => "AuthorizationLevel.Anonymous",
+            1 => "AuthorizationLevel.User",
+            2 => "AuthorizationLevel.Function",
+            3 => "AuthorizationLevel.System",
+            4 => "AuthorizationLevel.Admin",
+            _ => "(AuthorizationLevel)" + authorizationLevel
+        };
 }

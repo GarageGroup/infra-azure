@@ -14,6 +14,11 @@ partial class FunctionSwaggerBuilder
             return this;
         }
 
+        return InnerAddFunctionEndpoint(endpointMetadata);
+    }
+
+    private FunctionSwaggerBuilder InnerAddFunctionEndpoint(EndpointMetadata endpointMetadata)
+    {
         document.Paths ??= [];
         var pathItem = GetOrCreatePathItem(document.Paths, endpointMetadata);
 
@@ -71,7 +76,7 @@ partial class FunctionSwaggerBuilder
             throw new InvalidOperationException($"Path item must be of type {typeof(OpenApiPathItem)} when operations are not initialized");
         }
 
-        return concretePathItem.Operations = new Dictionary<HttpMethod, OpenApiOperation>();
+        return concretePathItem.Operations = [];
     }
 
     private static HttpMethod ToOperationType(EndpointMethod method)

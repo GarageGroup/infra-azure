@@ -13,7 +13,9 @@ internal sealed record class EndpointResolverMetadata
         string functionName,
         ObsoleteData? obsoleteData,
         IReadOnlyList<FunctionArgumentMetadata> arguments,
-        bool isSwaggerHidden)
+        bool isSwaggerHidden,
+        bool isEndpointSetOperation,
+        string? endpointOperationId)
     {
         EndpointType = endpointType;
         ResolverMethodName = resolverMethodName ?? string.Empty;
@@ -23,6 +25,8 @@ internal sealed record class EndpointResolverMetadata
         ObsoleteData = obsoleteData;
         Arguments = arguments ?? [];
         IsSwaggerHidden = isSwaggerHidden;
+        IsEndpointSetOperation = isEndpointSetOperation;
+        EndpointOperationId = endpointOperationId;
     }
 
     public DisplayedTypeData EndpointType { get; }
@@ -40,4 +44,8 @@ internal sealed record class EndpointResolverMetadata
     public IReadOnlyList<FunctionArgumentMetadata> Arguments { get; }
 
     public bool IsSwaggerHidden { get; }
+
+    public bool IsEndpointSetOperation { get; }
+
+    public string? EndpointOperationId { get; }
 }
