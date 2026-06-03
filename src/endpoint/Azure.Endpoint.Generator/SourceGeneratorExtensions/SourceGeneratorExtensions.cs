@@ -16,9 +16,12 @@ internal static partial class SourceGeneratorExtensions
 
     private const string ResolverStandardEnd = "Endpoint";
 
+    private const int AnonymousFunctionAuthorizationLevel = 0;
+
     private const int DefaultFunctionAuthorizationLevel = 2;
 
-    private static IReadOnlyList<FunctionArgumentMetadata> BuildDefaultArguments(int authorizationLevel, AttributeData? endpointAttribute)
+    private static IReadOnlyList<FunctionArgumentMetadata> BuildDefaultArguments(
+        int authorizationLevel, AttributeData? endpointAttribute)
     {
         return
         [
@@ -44,7 +47,8 @@ internal static partial class SourceGeneratorExtensions
         ];
     }
 
-    private static FunctionAttributeMetadata BuildHttpTriggerAttributeMetadata(int authorizationLevel, AttributeData? endpointAttribute)
+    private static FunctionAttributeMetadata BuildHttpTriggerAttributeMetadata(
+        int authorizationLevel, AttributeData? endpointAttribute)
     {
         var authorizationLevelSourceCode = authorizationLevel switch
         {

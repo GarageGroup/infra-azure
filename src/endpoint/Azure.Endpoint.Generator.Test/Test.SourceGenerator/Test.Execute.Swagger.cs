@@ -59,6 +59,23 @@ partial class FunctionSourceGeneratorTest
     }
 
     [Fact]
+    public static void Execute_EndpointFunction_SwaggerGenerator_AnonymousFunction_DoesNotRequireAuthorization()
+    {
+        var result = RunSwaggerGenerator(Execute_EndpointFunction_SwaggerGenerator_AnonymousFunction_DoesNotRequireAuthorization_SourceCode);
+        var generatorResult = result.Results.Single();
+
+        Assert.Null(generatorResult.Exception);
+        Assert.Empty(result.Diagnostics);
+
+        var generatedSource = generatorResult.GeneratedSources.Single();
+        Assert.Equal("SwaggerProviderSwagger.g.cs", generatedSource.HintName);
+
+        Assert.Equal(
+            NormalizeNewLines(Execute_EndpointFunction_SwaggerGenerator_AnonymousFunction_DoesNotRequireAuthorization_ExpectedSource),
+            NormalizeNewLines(generatedSource.SourceText.ToString()));
+    }
+
+    [Fact]
     public static void Execute_EndpointFunction_SwaggerGenerator_SwaggerHidden_DoesNotAddEndpointMetadata()
     {
         var result = RunSwaggerGenerator(Execute_EndpointFunction_SwaggerGenerator_SwaggerHidden_DoesNotAddEndpointMetadata_SourceCode);

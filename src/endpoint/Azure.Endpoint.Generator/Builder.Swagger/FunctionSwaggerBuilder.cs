@@ -25,7 +25,7 @@ internal static class FunctionSwaggerBuilder
             "public static Task<HttpResponseData> GetSwaggerDocumentAsync(")
         .BeginArguments()
         .AppendCodeLines(
-            $"[HttpTrigger({swagger.AuthorizationLevel.ToAuthorizationLevelSourceCode()}, \"GET\", Route = \"swagger/swagger.{{format}}\")] HttpRequestData request,")
+            $"{swagger.BuildHttpTriggerAttributeSourceCode()} HttpRequestData request,")
         .AppendCodeLines("string? format,")
         .AppendCodeLines("CancellationToken cancellationToken)")
         .EndArguments()
@@ -39,6 +39,10 @@ internal static class FunctionSwaggerBuilder
         .EndLambda()
         .EndCodeBlock()
         .Build();
+
+    private static string BuildHttpTriggerAttributeSourceCode(this FunctionSwaggerMetadata swagger)
+        =>
+        $"[HttpTrigger({swagger.AuthorizationLevel.ToAuthorizationLevelSourceCode()}, \"GET\", Route = \"swagger/swagger.{{format}}\")]";
 
     private static SourceBuilder AppendEndpoints(this SourceBuilder builder, IReadOnlyCollection<EndpointResolverMetadata>? resolverTypes)
     {
@@ -59,17 +63,20 @@ internal static class FunctionSwaggerBuilder
         foreach (var group in groups)
         {
             builder = builder.AddUsing(group.First().EndpointType.AllNamespaces.ToArray());
+            var isAuthorizationRequired = group.Any(static resolver => resolver.IsAuthorizationRequired);
 
             if (group.Key.IsEndpointSetOperation is false)
             {
                 builder = builder.AppendCodeLines(
-                    $".AddFunctionEndpoint({group.Key.EndpointTypeDisplayedName}.GetEndpointMetadata())");
+                    $".AddFunctionEndpoint({group.Key.EndpointTypeDisplayedName}.GetEndpointMetadata(), isAuthorizationRequired: " +
+                    $"{isAuthorizationRequired.ToBooleanSourceCode()})");
 
                 continue;
             }
 
             builder = builder.AppendCodeLines(
-                $".AddFunctionEndpoints({group.Key.EndpointTypeDisplayedName}.Metadata)");
+                $".AddFunctionEndpoints({group.Key.EndpointTypeDisplayedName}.Metadata, isAuthorizationRequired: " +
+                $"{isAuthorizationRequired.ToBooleanSourceCode()})");
         }
 
         return builder;
@@ -90,4 +97,8 @@ internal static class FunctionSwaggerBuilder
             4 => "AuthorizationLevel.Admin",
             _ => "(AuthorizationLevel)" + authorizationLevel
         };
+
+    private static string ToBooleanSourceCode(this bool value)
+        =>
+        value ? "true" : "false";
 }

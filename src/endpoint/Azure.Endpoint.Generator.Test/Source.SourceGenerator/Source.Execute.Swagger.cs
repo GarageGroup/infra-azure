@@ -78,7 +78,7 @@ internal static partial class FunctionSourceGeneratorSource
                 CancellationToken cancellationToken)
                 =>
                 request.CreateStandardSwaggerBuilder()
-                .AddFunctionEndpoint(ProductEndpoint.GetEndpointMetadata())
+                .AddFunctionEndpoint(ProductEndpoint.GetEndpointMetadata(), isAuthorizationRequired: true)
                 .BuildResponseAsync(request, format, cancellationToken);
         }
         """;
@@ -189,8 +189,8 @@ internal static partial class FunctionSourceGeneratorSource
                 CancellationToken cancellationToken)
                 =>
                 request.CreateStandardSwaggerBuilder()
-                .AddFunctionEndpoints(ProductEndpointSet.Metadata)
-                .AddFunctionEndpoint(HealthEndpoint.GetEndpointMetadata())
+                .AddFunctionEndpoints(ProductEndpointSet.Metadata, isAuthorizationRequired: true)
+                .AddFunctionEndpoint(HealthEndpoint.GetEndpointMetadata(), isAuthorizationRequired: true)
                 .BuildResponseAsync(request, format, cancellationToken);
         }
         """;
@@ -271,7 +271,89 @@ internal static partial class FunctionSourceGeneratorSource
                 CancellationToken cancellationToken)
                 =>
                 request.CreateStandardSwaggerBuilder()
-                .AddFunctionEndpoint(ProductEndpoint.GetEndpointMetadata())
+                .AddFunctionEndpoint(ProductEndpoint.GetEndpointMetadata(), isAuthorizationRequired: true)
+                .BuildResponseAsync(request, format, cancellationToken);
+        }
+        """;
+
+    internal const string Execute_EndpointFunction_SwaggerGenerator_AnonymousFunction_DoesNotRequireAuthorization_SourceCode
+        =
+        """
+        using GarageGroup.Infra;
+        using GarageGroup.Infra.Endpoint;
+        using PrimeFuncPack;
+
+        [assembly: EndpointFunctionSwagger]
+
+        namespace Demo.Functions;
+
+        [EndpointOperationMetadata("Products.Get", "GET", "/products/{id}")]
+        public sealed class ProductEndpoint : IEndpoint
+        {
+        }
+
+        public static class FunctionProvider
+        {
+            [EndpointFunctionSecurity(FunctionAuthorizationLevel.Anonymous)]
+            [EndpointFunction]
+            public static Dependency<ProductEndpoint> UseProductEndpoint()
+                =>
+                default!;
+        }
+
+        namespace GarageGroup.Infra.Endpoint
+        {
+            using System;
+
+            public interface IEndpointInvokeSupplier
+            {
+            }
+
+            public interface IEndpoint : IEndpointInvokeSupplier
+            {
+            }
+
+            [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+            public sealed class EndpointOperationMetadataAttribute : Attribute
+            {
+                public EndpointOperationMetadataAttribute(string operationId, string method, string route)
+                {
+                }
+            }
+        }
+
+        namespace PrimeFuncPack
+        {
+            public sealed class Dependency<T>
+            {
+            }
+        }
+        """;
+
+    internal const string Execute_EndpointFunction_SwaggerGenerator_AnonymousFunction_DoesNotRequireAuthorization_ExpectedSource
+        =
+        """
+        // Auto-generated code by PrimeFuncPack
+        #nullable enable
+
+        using GarageGroup.Infra.Endpoint;
+        using Microsoft.Azure.Functions.Worker;
+        using Microsoft.Azure.Functions.Worker.Http;
+        using System.Threading;
+        using System.Threading.Tasks;
+
+        namespace Demo.Functions;
+
+        public static class SwaggerProviderSwagger
+        {
+            [Function("GetSwaggerDocument")]
+            public static Task<HttpResponseData> GetSwaggerDocumentAsync(
+                [HttpTrigger(AuthorizationLevel.Function, "GET", Route = "swagger/swagger.{format}")] HttpRequestData request,
+                string? format,
+                CancellationToken cancellationToken)
+                =>
+                request.CreateStandardSwaggerBuilder()
+                .AddFunctionEndpoint(ProductEndpoint.GetEndpointMetadata(), isAuthorizationRequired: false)
                 .BuildResponseAsync(request, format, cancellationToken);
         }
         """;
@@ -462,7 +544,7 @@ internal static partial class FunctionSourceGeneratorSource
                 CancellationToken cancellationToken)
                 =>
                 request.CreateStandardSwaggerBuilder()
-                .AddFunctionEndpoint(HealthEndpoint.GetEndpointMetadata())
+                .AddFunctionEndpoint(HealthEndpoint.GetEndpointMetadata(), isAuthorizationRequired: true)
                 .BuildResponseAsync(request, format, cancellationToken);
         }
         """;
