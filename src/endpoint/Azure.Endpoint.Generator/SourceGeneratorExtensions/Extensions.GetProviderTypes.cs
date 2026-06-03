@@ -141,6 +141,7 @@ internal static partial class SourceGeneratorExtensions
             functionName: functionName,
             obsoleteData: endpointType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
             arguments: [.. arguments, .. defaultArguments.Values],
+            isAuthorizationRequired: authorizationLevel is not AnonymousFunctionAuthorizationLevel,
             isSwaggerHidden: functionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true,
             isEndpointSetOperation: false,
             endpointOperationId: null);
@@ -219,6 +220,7 @@ internal static partial class SourceGeneratorExtensions
                     functionName: endpointOperationId,
                     obsoleteData: endpointSetType.GetObsoleteData() ?? methodSymbol.GetObsoleteData(),
                     arguments: [.. arguments, .. defaultArguments.Values],
+                    isAuthorizationRequired: authorizationLevel is not AnonymousFunctionAuthorizationLevel,
                     isSwaggerHidden: setFunctionAttribute.GetNamedArgumentValue<bool?>("IsSwaggerHidden") is true,
                     isEndpointSetOperation: true,
                     endpointOperationId: endpointOperationId));

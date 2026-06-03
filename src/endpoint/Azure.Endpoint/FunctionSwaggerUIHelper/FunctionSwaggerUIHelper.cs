@@ -1,24 +1,25 @@
 using System;
-using System.IO;
 using System.IO.Compression;
-using System.Reflection;
-using AzureFunctions.Extensions.Swashbuckle;
-using AzureFunctions.Extensions.Swashbuckle.Settings;
-using AzureFunctions.Extensions.Swashbuckle.SwashBuckle;
+using System.Text.RegularExpressions;
 
 namespace GarageGroup.Infra.Endpoint;
 
-internal static class FunctionSwaggerUIHelper
+internal static partial class FunctionSwaggerUIHelper
 {
-    private static readonly Lazy<string> LazyHtmlTemplate = new(BuildHtmlTemplate);
+    private const string FunctionCodeQueryParameterName = "code";
 
-    internal static string GetSwaggerUIContent(this SwaggerDocOptions swaggerOptions, string swaggerUrl)
-        =>
-        LazyHtmlTemplate.Value
-            .Replace("{url}", swaggerUrl)
-            .Replace("{title}", swaggerOptions.Title)
-            .Replace("{oauth2RedirectUrl}", swaggerOptions.OAuth2RedirectPath)
-            .Replace("{clientId}", swaggerOptions.ClientId);
+    private const string FunctionKeySecuritySchemeName = "FunctionKey";
+
+    private static readonly Regex WindowUiAssignmentRegex
+        =
+        BuildWindowUiAssignmentRegex();
+
+    private static readonly Lazy<string> LazyHtmlTemplate
+        =
+        new(BuildHtmlTemplate);
+
+    [GeneratedRegex(@"(?m)^(?<indent>\s*)window\.ui\s*=\s*ui;?\s*$", RegexOptions.CultureInvariant)]
+    private static partial Regex BuildWindowUiAssignmentRegex();
 
     private static string BuildHtmlTemplate()
     {
@@ -31,30 +32,4 @@ internal static class FunctionSwaggerUIHelper
             .LoadAndUpdateHtml(archive, "swagger-ui-bundle.js", "{bundle.js}")
             .LoadAndUpdateHtml(archive, "swagger-ui-standalone-preset.js", "{standalone-preset.js}");
     }
-
-    private static string LoadAndUpdateHtml(this string documentHtml, ZipArchive archive, string entryName, string? replacement = null)
-    {
-        var entry = archive.GetEntryOrThrow(entryName);
-
-        using var stream = entry.Open();
-        using var reader = new StreamReader(stream);
-
-        var value = reader.ReadToEnd();
-        return string.IsNullOrEmpty(replacement) is false ? documentHtml.Replace(replacement, value) : value;
-    }
-
-    private static Stream GetZippedResources()
-    {
-        var assembly = Assembly.GetAssembly(typeof(SwashBuckleClient))
-            ?? throw new InvalidOperationException($"Assembly for type {typeof(SwashBuckleClient)} was not found");
-
-        var resourceName = $"{typeof(ISwashBuckleClient).Namespace}.EmbededResources.resources.zip";
-
-        return assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"ManifestResource {resourceName} must be not null");
-    }
-
-    private static ZipArchiveEntry GetEntryOrThrow(this ZipArchive archive, string entryName)
-        =>
-        archive.GetEntry(entryName) ?? throw new InvalidOperationException("Entry '{entryName}' must be not null");
 }

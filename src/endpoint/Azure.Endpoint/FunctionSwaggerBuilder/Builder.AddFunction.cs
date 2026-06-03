@@ -14,10 +14,20 @@ partial class FunctionSwaggerBuilder
             return this;
         }
 
-        return InnerAddFunctionEndpoint(endpointMetadata);
+        return InnerAddFunctionEndpoint(endpointMetadata, false);
     }
 
-    private FunctionSwaggerBuilder InnerAddFunctionEndpoint(EndpointMetadata endpointMetadata)
+    public FunctionSwaggerBuilder AddFunctionEndpoint(EndpointMetadata endpointMetadata, bool isAuthorizationRequired)
+    {
+        if (endpointMetadata is null)
+        {
+            return this;
+        }
+
+        return InnerAddFunctionEndpoint(endpointMetadata, isAuthorizationRequired);
+    }
+
+    private FunctionSwaggerBuilder InnerAddFunctionEndpoint(EndpointMetadata endpointMetadata, bool isAuthorizationRequired)
     {
         document.Paths ??= [];
         var pathItem = GetOrCreatePathItem(document.Paths, endpointMetadata);
@@ -27,7 +37,10 @@ partial class FunctionSwaggerBuilder
 
         if (operations.ContainsKey(operationType) is false)
         {
-            operations.Add(operationType, endpointMetadata.Operation);
+            var operation = new OpenApiOperation(endpointMetadata.Operation);
+            AddFunctionKeySecurityIfNecessary(operation, document, isAuthorizationRequired);
+
+            operations.Add(operationType, operation);
         }
 
         document.Components ??= new();
@@ -93,4 +106,33 @@ partial class FunctionSwaggerBuilder
             EndpointMethod.Trace => HttpMethod.Trace,
             _ => HttpMethod.Post
         };
+
+    private void AddFunctionKeySecurityIfNecessary(
+        OpenApiOperation operation, OpenApiDocument document, bool isAuthorizationRequired)
+    {
+        if (isAuthorizationRequired is false || hideFunctionCodeAuthorization)
+        {
+            return;
+        }
+
+        document.Components ??= new();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>(StringComparer.InvariantCultureIgnoreCase);
+
+        if (document.Components.SecuritySchemes.ContainsKey(FunctionKeySecuritySchemeName) is false)
+        {
+            document.Components.SecuritySchemes[FunctionKeySecuritySchemeName] = new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.ApiKey,
+                Name = FunctionKeyHeaderName,
+                In = ParameterLocation.Header
+            };
+        }
+
+        operation.Security ??= [];
+        operation.Security.Add(
+            item: new()
+            {
+                [new(FunctionKeySecuritySchemeName, document)] = []
+            });
+    }
 }

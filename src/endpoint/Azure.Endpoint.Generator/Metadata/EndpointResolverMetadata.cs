@@ -13,6 +13,7 @@ internal sealed record class EndpointResolverMetadata
         string functionName,
         ObsoleteData? obsoleteData,
         IReadOnlyList<FunctionArgumentMetadata> arguments,
+        bool isAuthorizationRequired,
         bool isSwaggerHidden,
         bool isEndpointSetOperation,
         string? endpointOperationId)
@@ -24,6 +25,7 @@ internal sealed record class EndpointResolverMetadata
         FunctionName = functionName ?? string.Empty;
         ObsoleteData = obsoleteData;
         Arguments = arguments ?? [];
+        IsAuthorizationRequired = isAuthorizationRequired;
         IsSwaggerHidden = isSwaggerHidden;
         IsEndpointSetOperation = isEndpointSetOperation;
         EndpointOperationId = endpointOperationId;
@@ -42,6 +44,8 @@ internal sealed record class EndpointResolverMetadata
     public ObsoleteData? ObsoleteData { get; }
 
     public IReadOnlyList<FunctionArgumentMetadata> Arguments { get; }
+
+    public bool IsAuthorizationRequired { get; }
 
     public bool IsSwaggerHidden { get; }
 
