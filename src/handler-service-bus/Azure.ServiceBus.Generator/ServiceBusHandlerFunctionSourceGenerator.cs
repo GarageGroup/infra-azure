@@ -3,20 +3,19 @@ using Microsoft.CodeAnalysis;
 
 namespace GarageGroup.Infra;
 
-[Generator(LanguageNames.CSharp)]
-public sealed class HandlerFunctionSourceGenerator : HandlerFunctionSourceGeneratorBase
+[Generator]
+public sealed class ServiceBusHandlerFunctionSourceGenerator : HandlerFunctionSourceGeneratorBase
 {
     private static readonly IReadOnlyList<IFunctionDataProvider> DataProviders;
 
-    static HandlerFunctionSourceGenerator()
+    static ServiceBusHandlerFunctionSourceGenerator()
         =>
         DataProviders =
         [
-            new HttpFunctionDataProvider(),
-            new EventGridFunctionDataProvider()
+            new ServiceBusFunctionDataProvider()
         ];
 
     protected override HandlerFunctionProvider GetFunctionProvider()
         =>
-        new(DataProviders, "HandlerFunction");
+        new(DataProviders, "ServiceBusHandlerFunction");
 }

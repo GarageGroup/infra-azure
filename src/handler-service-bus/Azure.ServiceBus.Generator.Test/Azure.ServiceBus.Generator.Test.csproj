@@ -7,13 +7,13 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
-    <RootNamespace>GarageGroup.Infra.Azure.DurableTask.Generator.Test</RootNamespace>
-    <AssemblyName>GarageGroup.Infra.Azure.DurableTask.Generator.Test</AssemblyName>
+    <RootNamespace>GarageGroup.Infra.Azure.ServiceBus.Generator.Test</RootNamespace>
+    <AssemblyName>GarageGroup.Infra.Azure.ServiceBus.Generator.Test</AssemblyName>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Azure.DurableTask/Azure.DurableTask.csproj" />
+    <ProjectReference Include="../Azure.ServiceBus/Azure.ServiceBus.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
     <PackageReference Include="EarlyFuncPack.CodeAnalysis.Extensions" Version="0.1.0" PrivateAssets="all" />
     <PackageReference Include="EarlyFuncPack.CodeAnalysis.SourceBuilder" Version="0.1.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

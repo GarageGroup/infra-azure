@@ -7,13 +7,13 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
-    <RootNamespace>GarageGroup.Infra.Azure.Hosting.Generator.Test</RootNamespace>
-    <AssemblyName>GarageGroup.Infra.Azure.Hosting.Generator.Test</AssemblyName>
+    <RootNamespace>GarageGroup.Infra.Azure.DurableTask.Generator.Test</RootNamespace>
+    <AssemblyName>GarageGroup.Infra.Azure.DurableTask.Generator.Test</AssemblyName>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Azure.Hosting/Azure.Hosting.csproj" />
+    <ProjectReference Include="../Azure.DurableTask/Azure.DurableTask.csproj" />
   </ItemGroup>
 
   <ItemGroup>

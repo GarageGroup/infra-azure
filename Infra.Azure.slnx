@@ -2,15 +2,20 @@
   <Folder Name="/.github/">
     <File Path=".github/workflows/dotnet.yml" />
   </Folder>
-  <Folder Name="/durable-task/">
-    <Project Path="src/durable-task/Azure.DurableTask.Generator.Test/Azure.DurableTask.Generator.Test.csproj" />
-    <Project Path="src/durable-task/Azure.DurableTask.Generator/Azure.DurableTask.Generator.csproj" />
-    <Project Path="src/durable-task/Azure.DurableTask/Azure.DurableTask.csproj" />
-  </Folder>
   <Folder Name="/endpoint/">
     <Project Path="src/endpoint/Azure.Endpoint/Azure.Endpoint.csproj" />
     <Project Path="src/endpoint/Azure.Endpoint.Generator/Azure.Endpoint.Generator.csproj" />
     <Project Path="src/endpoint/Azure.Endpoint.Generator.Test/Azure.Endpoint.Generator.Test.csproj" />
+  </Folder>
+  <Folder Name="/handler-service-bus/">
+    <Project Path="src/handler-service-bus/Azure.ServiceBus.Generator.Test/Azure.ServiceBus.Generator.Test.csproj" />
+    <Project Path="src/handler-service-bus/Azure.ServiceBus.Generator/Azure.ServiceBus.Generator.csproj" />
+    <Project Path="src/handler-service-bus/Azure.ServiceBus/Azure.ServiceBus.csproj" />
+  </Folder>
+  <Folder Name="/handler-durable/">
+    <Project Path="src/handler-durable/Azure.DurableTask.Generator.Test/Azure.DurableTask.Generator.Test.csproj" />
+    <Project Path="src/handler-durable/Azure.DurableTask.Generator/Azure.DurableTask.Generator.csproj" />
+    <Project Path="src/handler-durable/Azure.DurableTask/Azure.DurableTask.csproj" />
   </Folder>
   <Folder Name="/handler/">
     <Project Path="src/handler/Azure.Handler/Azure.Handler.csproj" />

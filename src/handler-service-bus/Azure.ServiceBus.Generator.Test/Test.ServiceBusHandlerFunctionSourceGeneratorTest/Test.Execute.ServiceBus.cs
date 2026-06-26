@@ -3,9 +3,9 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Xunit;
 
-namespace GarageGroup.Infra.Azure.Handler.Generator.Test;
+namespace GarageGroup.Infra.Azure.ServiceBus.Generator.Test;
 
-partial class HandlerFunctionSourceGeneratorTest
+partial class ServiceBusHandlerFunctionSourceGeneratorTest
 {
     [Theory]
     [MemberData(nameof(ServiceBusTriggerCases))]
@@ -64,7 +64,7 @@ partial class HandlerFunctionSourceGeneratorTest
 
                 namespace Demo.Functions;
 
-                public static partial class FunctionProviderHandlerFunction
+                public static partial class FunctionProviderServiceBusHandlerFunction
                 {
                 }
                 """),
@@ -77,36 +77,37 @@ partial class HandlerFunctionSourceGeneratorTest
                 // Auto-generated code by PrimeFuncPack
                 #nullable enable
 
+                using Azure.Messaging.ServiceBus;
                 using GarageGroup.Infra;
                 using Microsoft.Azure.Functions.Worker;
-                using System.Text.Json;
                 using System.Threading;
                 using System.Threading.Tasks;
 
                 namespace Demo.Functions;
 
-                partial class FunctionProviderHandlerFunction
+                partial class FunctionProviderServiceBusHandlerFunction
                 {
                     [Function("Handle")]
                     public static Task HandleAsync(
-                        [{{expectedTriggerAttribute}}] JsonElement requestData,
+                        [{{expectedTriggerAttribute}}] ServiceBusReceivedMessage message,
+                        ServiceBusMessageActions messageActions,
                         FunctionContext context,
                         CancellationToken cancellationToken)
                         =>
                         FunctionProvider.ResolveHandle()
-                        .RunAzureFunctionAsync<IInputHandler, Input, Output>(
-                            requestData, context, cancellationToken);
+                        .RunServiceBusFunctionAsync<IInputHandler, Input, Output>(
+                            message, messageActions, context, cancellationToken);
                 }
                 """),
             NormalizeNewLines(function));
 
         static bool IsConstructor(GeneratedSourceResult source)
             =>
-            source.HintName.Equals("FunctionProviderHandlerFunction.g.cs", StringComparison.Ordinal);
+            source.HintName.Equals("FunctionProviderServiceBusHandlerFunction.g.cs", StringComparison.Ordinal);
 
         static bool IsFunction(GeneratedSourceResult source)
             =>
-            source.HintName.Equals("FunctionProviderHandlerFunction.HandleAsync.g.cs", StringComparison.Ordinal);
+            source.HintName.Equals("FunctionProviderServiceBusHandlerFunction.HandleAsync.g.cs", StringComparison.Ordinal);
     }
 
     public static TheoryData<string, string> ServiceBusTriggerCases
@@ -115,11 +116,11 @@ partial class HandlerFunctionSourceGeneratorTest
         {
             {
                 "ServiceBusFunction(\"Handle\", \"orders\", \"ServiceBus\")",
-                "ServiceBusTrigger(\"orders\", Connection = \"ServiceBus\")"
+                "ServiceBusTrigger(\"orders\", Connection = \"ServiceBus\", AutoCompleteMessages = false)"
             },
             {
                 "ServiceBusFunction(\"Handle\", \"orders-topic\", \"orders-subscription\", \"ServiceBus\")",
-                "ServiceBusTrigger(\"orders-topic\", \"orders-subscription\", Connection = \"ServiceBus\")"
+                "ServiceBusTrigger(\"orders-topic\", \"orders-subscription\", Connection = \"ServiceBus\", AutoCompleteMessages = false)"
             }
         };
 }

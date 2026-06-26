@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -22,18 +22,18 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
         return new(
             namespaces:
             [
-                "System.Text.Json",
+                "Azure.Messaging.ServiceBus",
                 "System.Threading",
                 "System.Threading.Tasks"
             ],
             responseTypeDisplayName: "Task",
-            extensionsMethodName: "RunAzureFunctionAsync",
+            extensionsMethodName: "RunServiceBusFunctionAsync",
             arguments:
             [
                 new(
                     namespaces: default,
-                    typeDisplayName: "JsonElement",
-                    argumentName: "requestData",
+                    typeDisplayName: "ServiceBusReceivedMessage",
+                    argumentName: "message",
                     orderNumber: int.MinValue,
                     extensionMethodArgumentOrder: int.MinValue,
                     resolverMethodArgumentOrder: null,
@@ -41,6 +41,14 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
                     [
                         BuildServiceBusTriggerAttributeMetadata(functionAttribute)
                     ]),
+                new(
+                    namespaces: default,
+                    typeDisplayName: "ServiceBusMessageActions",
+                    argumentName: "messageActions",
+                    orderNumber: int.MinValue + 1,
+                    extensionMethodArgumentOrder: int.MinValue + 1,
+                    resolverMethodArgumentOrder: null,
+                    attributes: default),
                 new(
                     namespaces: default,
                     typeDisplayName: "FunctionContext",
@@ -67,15 +75,15 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
         var argumentsLength = serviceBusAttribute.ConstructorArguments.Length;
         if (argumentsLength is QueueServiceBusConstructorArgumentCount)
         {
-            var queueName = serviceBusAttribute.GetAttributeValue(1)?.ToString();
+            var queueName = serviceBusAttribute.ConstructorArguments[1].Value?.ToString();
             constructorArguments.Add(queueName.AsStringSourceCodeOr());
         }
         else if (argumentsLength is SubscriptionServiceBusConstructorArgumentCount)
         {
-            var topicName = serviceBusAttribute.GetAttributeValue(1)?.ToString();
+            var topicName = serviceBusAttribute.ConstructorArguments[1].Value?.ToString();
             constructorArguments.Add(topicName.AsStringSourceCodeOr());
 
-            var subscriptionName = serviceBusAttribute.GetAttributeValue(2)?.ToString();
+            var subscriptionName = serviceBusAttribute.ConstructorArguments[2].Value?.ToString();
             constructorArguments.Add(subscriptionName.AsStringSourceCodeOr());
         }
         else
@@ -85,12 +93,14 @@ internal sealed class ServiceBusFunctionDataProvider : IFunctionDataProvider
         }
 
         var properties = new Dictionary<string, string>();
-        var connection = serviceBusAttribute.GetAttributeValue(serviceBusAttribute.ConstructorArguments.Length - 1)?.ToString();
+        var connection = serviceBusAttribute.ConstructorArguments[argumentsLength - 1].Value?.ToString();
 
         if (string.IsNullOrEmpty(connection) is false)
         {
             properties["Connection"] = connection.AsStringSourceCodeOr();
         }
+
+        properties["AutoCompleteMessages"] = "false";
 
         return new(
             namespaces: default,

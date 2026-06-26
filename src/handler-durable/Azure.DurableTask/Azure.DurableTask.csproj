@@ -10,7 +10,7 @@
     <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
     <AssemblyName>GarageGroup.Infra.Azure.DurableTask</AssemblyName>
-    <Version>1.0.3</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +25,7 @@
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Activity.Contract" Version="1.0.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Entity.Contract" Version="1.0.0" />
     <PackageReference Include="GarageGroup.Infra.Orchestration.Api.Instance.Contract" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.16.3" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.17.1" />
     <PackageReference Include="PrimeFuncPack.Primitives.Strings" Version="3.0.0" />
   </ItemGroup>
 
