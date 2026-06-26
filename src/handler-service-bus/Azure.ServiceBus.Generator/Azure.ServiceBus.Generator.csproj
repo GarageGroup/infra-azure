@@ -6,16 +6,15 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <InvariantGlobalization>true</InvariantGlobalization>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <NoWarn>$(NoWarn);IDE0130;CA1859;CA1873</NoWarn>
+    <NoWarn>$(NoWarn);IDE0130;IDE0305;CA1859;CA1873</NoWarn>
     <RootNamespace>GarageGroup.Infra</RootNamespace>
-    <AssemblyName>GarageGroup.Infra.Azure.Handler.Generator</AssemblyName>
-    <Version>1.1.0</Version>
+    <AssemblyName>GarageGroup.Infra.Azure.ServiceBus.Generator</AssemblyName>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,14 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EarlyFuncPack.CodeAnalysis.Extensions" Version="0.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <GeneratePathProperty>true</GeneratePathProperty>
-    </PackageReference>
-    <PackageReference Include="EarlyFuncPack.CodeAnalysis.SourceBuilder" Version="0.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <GeneratePathProperty>true</GeneratePathProperty>
-    </PackageReference>
+    <ProjectReference Include="../../handler/Azure.Handler.Generator/Azure.Handler.Generator.csproj">
+      <SetTargetFramework>TargetFramework=netstandard2.0</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EarlyFuncPack.CodeAnalysis.Extensions" Version="0.1.0" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="EarlyFuncPack.CodeAnalysis.SourceBuilder" Version="0.1.0" PrivateAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
